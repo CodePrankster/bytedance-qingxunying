@@ -7,7 +7,7 @@ mysql:
   host: localhost
   port: 3306
   user: root
-  password: mahuanyu666
+  password: xxxx
   dbname: dousheng
   max_open_conns: 200
   max_idle_conns: 50

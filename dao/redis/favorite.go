@@ -11,27 +11,30 @@ func FavoriteAction(uid, vid string, actionType int32) (int32, error) {
 
 	// 首先判断当前用户是否点赞
 	value := client.ZScore(GetRedisKey(KeyVideoFavoriteZSetPF+vid), uid).Val()
+
+	pipeline := client.TxPipeline()
 	if actionType == 1 && value != 1 {
 		// 点赞成功，添加数据
-		client.ZAdd(GetRedisKey(KeyVideoFavoriteZSetPF+vid), redis.Z{
+		pipeline.ZAdd(GetRedisKey(KeyVideoFavoriteZSetPF+vid), redis.Z{
 			Score:  float64(actionType),
 			Member: uid,
 		})
 		// 记录用户点赞的视频
-		client.SAdd(GetRedisKey(KeyUserSetPF+uid), vid)
+		pipeline.SAdd(GetRedisKey(KeyUserSetPF+uid), vid)
 	}
 	if actionType == 2 && value == 1 {
 		// 取消点赞，把赞的类型变为2
 		//client.ZRem(GetRedisKey(KeyVideoFavoriteZSetPF+vid), uid)
-		client.ZAdd(GetRedisKey(KeyVideoFavoriteZSetPF+vid), redis.Z{
+		pipeline.ZAdd(GetRedisKey(KeyVideoFavoriteZSetPF+vid), redis.Z{
 			Score:  float64(actionType),
 			Member: uid,
 		})
 		// 删除set里面的数据
-		client.SRem(GetRedisKey(KeyUserSetPF+uid), vid)
+		pipeline.SRem(GetRedisKey(KeyUserSetPF+uid), vid)
 	}
-	if actionType == 2 && value != 1 {
-
+	_, err := pipeline.Exec()
+	if err != nil {
+		return common.ERROR, err
 	}
 
 	return common.SUCCESS, nil
@@ -39,7 +42,7 @@ func FavoriteAction(uid, vid string, actionType int32) (int32, error) {
 
 // FavoriteList 当前用户的点赞列表
 func FavoriteList(uid string) (error, []string) {
-	// TODO bug 应当查询的是点赞类型为1的，2的不能被查出来
+
 	key := GetRedisKey(KeyUserSetPF + uid)
 	result, err := client.SMembers(key).Result()
 	if err != nil {

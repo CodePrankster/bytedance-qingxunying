@@ -1,6 +1,8 @@
 package main
 
 import (
+	"dousheng-backend/dao/mysql"
+	"dousheng-backend/dao/redis"
 	"dousheng-backend/router"
 	"dousheng-backend/setting"
 	"fmt"
@@ -12,6 +14,18 @@ func main() {
 		fmt.Printf("load config failed, err:%v\n", err)
 		return
 	}
+	// 数据库初始化
+	if err := mysql.Init(setting.Conf.MySQLConfig); err != nil {
+		fmt.Printf("init mysql failed, err:%v\n", err)
+		return
+	}
+
+	// redis初始化
+	if err := redis.Init(setting.Conf.RedisConfig); err != nil {
+		fmt.Printf("init redis failed, err:%v\n", err)
+		return
+	}
+	defer redis.Close()
 
 	// 路由初始化
 	r := router.InitRouter()

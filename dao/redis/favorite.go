@@ -10,6 +10,7 @@ import (
 func FavoriteAction(uid, vid string, actionType int32) (int32, error) {
 
 	// 首先判断当前用户是否点赞
+	fmt.Println(client)
 	value := client.ZScore(GetRedisKey(KeyVideoFavoriteZSetPF+vid), uid).Val()
 
 	pipeline := client.TxPipeline()

@@ -1,0 +1,23 @@
+name:
+  dousheng-backend
+port:
+  8084
+
+mysql:
+  host: localhost
+  port: 3306
+  user: root
+  password: mahuanyu666
+  dbname: dousheng
+  max_open_conns: 200
+  max_idle_conns: 50
+
+
+redis:
+  host: localhost
+  port: 6379
+  password:
+  db: 0
+  pool_size: 100
+
+

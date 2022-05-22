@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"dousheng-backend/model"
 	"dousheng-backend/setting"
 	"fmt"
 	"gorm.io/driver/mysql"
@@ -26,7 +27,7 @@ func Init(cfg *setting.MySQLConfig) error {
 	}
 
 	// 表迁移（创建表）
-	if err := db.AutoMigrate(); err != nil {
+	if err := db.AutoMigrate(&model.Video{}, &model.User{}, &model.Comment{}); err != nil {
 		fmt.Println("错误")
 	}
 	return nil

@@ -2,6 +2,7 @@ package redis
 
 import (
 	"dousheng-backend/common"
+	"fmt"
 	"github.com/go-redis/redis"
 )
 
@@ -28,5 +29,21 @@ func FavoriteAction(uid, vid string, actionType int32) (int32, error) {
 	if actionType == 2 && value != 1 {
 
 	}
+
+	// 记录用户点赞的视频
+	client.SAdd(GetRedisKey(KeyUserSetPF+uid), vid)
+
 	return common.SUCCESS, nil
+}
+
+// FavoriteList 当前用户的点赞列表
+func FavoriteList(uid string) (error, []string) {
+	key := GetRedisKey(KeyUserSetPF + uid)
+	result, err := client.SMembers(key).Result()
+	if err != nil {
+		return err, nil
+	}
+	fmt.Printf("%v\n", result)
+	return nil, result
+
 }

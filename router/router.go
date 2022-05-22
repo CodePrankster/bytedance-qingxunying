@@ -13,6 +13,7 @@ func InitRouter() *gin.Engine {
 	v1Favorite := v1.Group("favorite")
 	{
 		v1Favorite.POST("/action/", controller.FavoriteAction)
+		v1Favorite.GET("/list/", controller.FavoriteList)
 	}
 
 	r.NoRoute(func(c *gin.Context) {

@@ -1,0 +1,60 @@
+{
+  "status_code": 0,
+  "status_msg": "OK",
+  "video_list": [
+    {
+      "id": 1,
+      "author": {
+        "ID": 1,
+        "CreatedAt": "0001-01-01T00:00:00Z",
+        "UpdatedAt": "0001-01-01T00:00:00Z",
+        "DeletedAt": null,
+        "name": "t1",
+        "follow_count": 1,
+        "follower_count": 1,
+        "is_follow": true
+      },
+      "play_url": "baidu",
+      "cover_url": "baidu",
+      "title": "标题1",
+      "favorite_count": 1,
+      "comment_count": 1,
+      "is_favorite": true
+    },
+    {
+      "id": 2,
+      "author": {
+        "ID": 1,
+        "CreatedAt": "0001-01-01T00:00:00Z",
+        "UpdatedAt": "0001-01-01T00:00:00Z",
+        "DeletedAt": null,
+        "name": "t1",
+        "follow_count": 1,
+        "follower_count": 1,
+        "is_follow": true
+      },
+      "play_url": "tengxun",
+      "cover_url": "tengxun",
+      "title": "标题2",
+      "favorite_count": 1,
+      "comment_count": 1,
+      "is_favorite": true
+    },
+    {
+      "id": 3,
+      "author": {
+        "ID": 2,
+        "CreatedAt": "0001-01-01T00:00:00Z",
+        "UpdatedAt": "0001-01-01T00:00:00Z",
+        "DeletedAt": null,
+        "name": "t2",
+        "follow_count": 1,
+        "follower_count": 1,
+        "is_follow": true
+      },
+      "play_url": "byte",
+      "cover_url": "byte",
+      "title": "标题3"
+    }
+  ]
+}

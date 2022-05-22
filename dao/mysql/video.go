@@ -10,3 +10,12 @@ func MQVideoListById(ids []string) ([]*model.Video, error) {
 	}
 	return videoList, nil
 }
+
+// UpdateVideoById 根据id更新数据
+func UpdateVideoById(id, num string) error {
+	var video model.Video
+	if err := db.Model(&video).Where("id = ?", id).Update("favorite_count", num).Error; err != nil {
+		return err
+	}
+	return nil
+}

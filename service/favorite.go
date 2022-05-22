@@ -32,7 +32,21 @@ func FavoriteAction(request *common.FavoriteActionRequest) (int32, error) {
 	vid := strconv.Itoa(int(request.VideoId))
 	actionType := request.ActionType
 
-	return redis.FavoriteAction(uid, vid, actionType)
+	// redis操作点赞
+	code, err := redis.FavoriteAction(uid, vid, actionType)
+	if err != nil {
+		return code, err
+	}
+
+	// 查询出来视频的点赞总数，持久化到mysql表中
+	num, err := redis.GetVideoFavoriteNum(vid)
+	if err != nil {
+		return common.ERROR, err
+	}
+	if err := mysql.UpdateVideoById(vid, strconv.Itoa(int(num))); err != nil {
+		return common.ERROR, err
+	}
+	return common.SUCCESS, nil
 }
 
 func (f *VideoListInfo) FavoriteList(request *common.FavoriteListRequest) (error, *VideoListInfo) {

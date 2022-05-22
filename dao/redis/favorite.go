@@ -47,3 +47,15 @@ func FavoriteList(uid string) (error, []string) {
 	return nil, result
 
 }
+
+// 查询视频点赞总数
+func GetVideoFavoriteNum(id string) (int64, error) {
+	key := GetRedisKey(KeyVideoFavoriteZSetPF + id)
+	cmder := client.ZCount(key, "1", "1")
+	num, err := cmder.Result()
+	if err != nil {
+		return num, err
+	}
+	fmt.Printf("数量为：%d\n", num)
+	return num, nil
+}

@@ -33,20 +33,8 @@ func FavoriteAction(request *common.FavoriteActionRequest) (int32, error) {
 	actionType := request.ActionType
 
 	// redis操作点赞
-	code, err := redis.FavoriteAction(uid, vid, actionType)
-	if err != nil {
-		return code, err
-	}
+	return redis.FavoriteAction(uid, vid, actionType)
 
-	// 查询出来视频的点赞总数，持久化到mysql表中
-	num, err := redis.GetVideoFavoriteNum(vid)
-	if err != nil {
-		return common.ERROR, err
-	}
-	if err := mysql.UpdateVideoById(vid, strconv.Itoa(int(num))); err != nil {
-		return common.ERROR, err
-	}
-	return common.SUCCESS, nil
 }
 
 func (f *VideoListInfo) FavoriteList(request *common.FavoriteListRequest) (error, *VideoListInfo) {
@@ -91,12 +79,17 @@ func (f *VideoListInfo) FavoriteList(request *common.FavoriteListRequest) (error
 	videoInfos := make([]*VideoInfo, 0)
 	for _, video := range videoList {
 		user := userMap[video.Uid]
+		vid := strconv.Itoa(int(video.ID))
+		num, err := redis.GetVideoFavoriteNum(vid)
+		if err != nil {
+			return err, nil
+		}
 		videoInfos = append(videoInfos, &VideoInfo{
 			ID:            video.ID,
 			PlayUrl:       video.PlayUrl,
 			CoverUrl:      video.CoverUrl,
-			FavoriteCount: video.FavoriteCount,
-			CommentCount:  video.CommentCount,
+			FavoriteCount: num,
+			CommentCount:  1, // TODO 查询评论数量
 			IsFavorite:    video.IsFavorite,
 			Title:         video.Title,
 			User:          user,

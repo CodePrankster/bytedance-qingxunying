@@ -37,7 +37,6 @@ func TestFavoriteAction(t *testing.T) {
 	r := gin.Default()
 	url := "/douyin/favorite/action/"
 	r.POST(url, FavoriteAction)
-
 	body := `{
     "user_id":1,
     "token":"abcd",

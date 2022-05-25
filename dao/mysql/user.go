@@ -19,3 +19,12 @@ func MQueryUserById(ids []uint) (map[uint]*model.User, error) {
 
 	return userMap, nil
 }
+
+// MQUserListById 根据用户id做批量查询
+func MQUserListById(ids []string) ([]*model.User, error) {
+	var userList []*model.User
+	if err := db.Where("id in (?)", ids).Find(&userList).Error; err != nil {
+		return userList, err
+	}
+	return userList, nil
+}

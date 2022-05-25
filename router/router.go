@@ -16,6 +16,13 @@ func InitRouter() *gin.Engine {
 		v1Favorite.GET("/list/", controller.FavoriteList)
 	}
 
+	v1Relation := v1.Group("relation")
+	{
+		v1Relation.POST("/action/", controller.RelationAvtion)
+		v1Relation.POST("/follow/list/", controller.FollowList)
+		v1Relation.POST("/follower/list/", controller.FollowerList)
+	}
+
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"code": "404",

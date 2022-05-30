@@ -19,8 +19,8 @@ func InitRouter() *gin.Engine {
 	v1Relation := v1.Group("relation")
 	{
 		v1Relation.POST("/action/", controller.RelationAvtion)
-		v1Relation.POST("/follow/list/", controller.FollowList)
-		v1Relation.POST("/follower/list/", controller.FollowerList)
+		v1Relation.GET("/follow/list/", controller.FollowList)
+		v1Relation.GET("/follower/list/", controller.FollowerList)
 	}
 
 	r.NoRoute(func(c *gin.Context) {

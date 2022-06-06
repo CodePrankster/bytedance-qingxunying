@@ -1,5 +1,7 @@
 package common
 
+import "mime/multipart"
+
 // FavoriteActionRequest 点赞请求参数
 type FavoriteActionRequest struct {
 	UserId     int64  `json:"user_id"`     // 用户id
@@ -13,5 +15,11 @@ type FavoriteListRequest struct {
 	UserId int64 `json:"user_id" form:"user_id"` // 用户id
 
 	Token string `json:"token" form:"token"` // 用户鉴权
+}
 
+// PublishActionRequest 发布视频请求参数
+type PublishActionRequest struct {
+	Data  *multipart.FileHeader `form:"data"`  // 上传的视频
+	Token string                `form:"token"` // 用户鉴权
+	Title string                `form:"title"` // 视频的标题
 }

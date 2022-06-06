@@ -19,3 +19,11 @@ func UpdateVideoById(id, num string) error {
 	}
 	return nil
 }
+
+// UpdateVideoById 根据id更新数据
+func InsertVideo(video model.Video) error {
+	if err := db.Create(&video).Error; err != nil {
+		return err
+	}
+	return nil
+}

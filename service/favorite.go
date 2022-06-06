@@ -36,7 +36,6 @@ func FavoriteAction(request *common.FavoriteActionRequest) (int32, error) {
 	return redis.FavoriteAction(uid, vid, actionType)
 
 }
-
 func (f *VideoListInfo) FavoriteList(request *common.FavoriteListRequest) (error, *VideoListInfo) {
 	uid := strconv.Itoa(int(request.UserId))
 	// TODO 参数校验

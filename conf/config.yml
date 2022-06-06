@@ -7,7 +7,7 @@ mysql:
   host: localhost
   port: 3306
   user: root
-  password: xxxx
+  password: 111225
   dbname: dousheng
   max_open_conns: 200
   max_idle_conns: 50
@@ -19,5 +19,17 @@ redis:
   password:
   db: 0
   pool_size: 100
+
+oss:
+  end_point: oss-cn-hangzhou.aliyuncs.com
+  access_key_id: LTAI5tJrnNJk1NuHbCsBZcSa
+  access_key_secret: wNDLd19m3UFCwwmUUABEO4us3QEWF2
+  bucket_name: byte-dance-zh
+  suffer_url: http://byte-dance-zh.oss-cn-hangzhou.aliyuncs.com/
+cover_in_server:
+  E:\go_work\src\bytedance-qingxunying\data\
+ffmpeg_path:
+  D:\ffmpeg\ffmpeg-20200724-21442a8-win64-static\bin\ffmpeg.exe
+
 
 

@@ -9,10 +9,13 @@ import (
 var Conf = new(AppConfig)
 
 type AppConfig struct {
-	Name         string
-	Port         int
-	*MySQLConfig `mapstructure:"mysql"`
-	*RedisConfig `mapstructure:"redis"`
+	Name          string
+	Port          int
+	CoverInServer string `mapstructure:"cover_in_server"`
+	FfmpegPath    string `mapstructure:"ffmpeg_path"`
+	*MySQLConfig  `mapstructure:"mysql"`
+	*RedisConfig  `mapstructure:"redis"`
+	*OSSConfig    `mapstructure:"oss"`
 }
 
 // 定义mysql配置文件的结构体
@@ -35,9 +38,18 @@ type RedisConfig struct {
 	PoolSize int    `mapstructure:"pool_size"`
 }
 
+// 定义oss配置文件的结构体
+type OSSConfig struct {
+	EndPoint        string `mapstructure:"end_point"`
+	AccessKeyId     string `mapstructure:"access_key_id"`
+	AccessKeySecret string `mapstructure:"access_key_secret"`
+	BucketName      string `mapstructure:"bucket_name"`
+	SufferUrl       string `mapstructure:"suffer_url"`
+}
+
 func Init() error {
 	//viper.SetConfigFile("./conf/config.yml")   为了测试通过 先注释掉你
-	viper.SetConfigFile("E:\\program_WorkSpace\\school\\Projects\\byteDance-project\\dousheng-backend\\conf\\config.yml")
+	viper.SetConfigFile("E:\\go_work\\src\\bytedance-qingxunying\\conf\\config.yml")
 	err := viper.ReadInConfig() // 读取配置信息
 	if err != nil {
 		fmt.Printf("viper.ReadInConfig failed, err:%v\n", err)

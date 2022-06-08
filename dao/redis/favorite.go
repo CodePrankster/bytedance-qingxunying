@@ -54,7 +54,7 @@ func FavoriteList(uid string) (error, []string) {
 
 }
 
-// 查询视频点赞总数
+// GetVideoFavoriteNum 查询视频点赞总数
 func GetVideoFavoriteNum(id string) (int64, error) {
 	key := GetRedisKey(KeyVideoFavoriteZSetPF + id)
 	cmder := client.ZCount(key, "1", "1")
@@ -64,4 +64,16 @@ func GetVideoFavoriteNum(id string) (int64, error) {
 	}
 	fmt.Printf("数量为：%d\n", num)
 	return num, nil
+}
+
+// IsFavorite 判断是否点赞
+func IsFavorite(uid, vid string) (bool, error) {
+
+	key := GetRedisKey(KeyUserSetPF + uid)
+	result, err := client.SIsMember(key, vid).Result()
+	if err != nil {
+		return result, err
+	}
+	return result, nil
+
 }

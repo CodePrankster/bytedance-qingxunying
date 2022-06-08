@@ -1,6 +1,9 @@
 package mysql
 
-import "dousheng-backend/model"
+import (
+	"dousheng-backend/model"
+	"time"
+)
 
 // MQVideoListById 根据视频id做批量查询
 func MQVideoListById(ids []string) ([]*model.Video, error) {
@@ -18,6 +21,15 @@ func UpdateVideoById(id, num string) error {
 		return err
 	}
 	return nil
+}
+
+// GetVideoFeedListByLatestTime 根据时间倒序查找feed列表
+func GetVideoFeedListByLatestTime(time time.Time) ([]*model.Video, error) {
+	var feedList []*model.Video
+	if err := db.Where("updated_at < ?", time).Order("updated_at desc").Find(&feedList).Limit(20).Error; err != nil {
+		return nil, err
+	}
+	return feedList, nil
 }
 
 // InsertVideo

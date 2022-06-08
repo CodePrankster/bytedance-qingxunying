@@ -75,3 +75,9 @@ type CommentListRequest struct {
 	Token   string `json:"token" form:"token"`
 	VideoId int64  `json:"video_id" form:"video_id"`
 }
+
+// FeedRequest 视频feed流请求参数
+type FeedRequest struct {
+	LatestTime string `json:"latest_time,omitempty"`
+	Token      string `json:"token,omitempty"`
+}

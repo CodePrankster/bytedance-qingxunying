@@ -27,3 +27,12 @@ func GetCommentListByVid(vid int64) (int32, []*model.Comment, error) {
 	}
 	return common.SUCCESS, commentList, nil
 }
+
+// GetVideoCommentNum 查询视频评论数量
+func GetVideoCommentNum(vid int64) (int64, error) {
+	var count int64
+	if err := db.Model(&model.Comment{}).Where("vid = ?", vid).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}

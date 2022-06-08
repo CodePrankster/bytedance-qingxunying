@@ -13,11 +13,12 @@ func InitRouter() *gin.Engine {
 	v1 := r.Group("/douyin")
 	v1Favorite := v1.Group("/favorite")
 	{
-		v1Favorite.POST("/action/", controller.FavoriteAction)
-		v1Favorite.GET("/list/", controller.FavoriteList)
+		v1Favorite.POST("/action/", middleware.Authentication, controller.FavoriteAction)
+		v1Favorite.GET("/list/", middleware.Authentication, controller.FavoriteList)
 	}
 	v1Publish := v1.Group("/publish")
 	{
+		v1Publish.GET("/feed/", controller.FeedList)
 		v1Publish.POST("/action/", middleware.Authentication, controller.PublishAction)
 		//v1Publish.GET("/list/", controller.FavoriteList)
 	}
@@ -30,15 +31,15 @@ func InitRouter() *gin.Engine {
 
 	v1Relation := v1.Group("relation")
 	{
-		v1Relation.POST("/action/", controller.RelationAvtion)
-		v1Relation.GET("/follow/list/", controller.FollowList)
-		v1Relation.GET("/follower/list/", controller.FollowerList)
+		v1Relation.POST("/action/", middleware.Authentication, controller.RelationAvtion)
+		v1Relation.GET("/follow/list/", middleware.Authentication, controller.FollowList)
+		v1Relation.GET("/follower/list/", middleware.Authentication, controller.FollowerList)
 	}
 
 	v1Comment := v1.Group("comment")
 	{
-		v1Comment.POST("/action", controller.CommentAction)
-		v1Comment.GET("/list", controller.CommentList)
+		v1Comment.POST("/action", middleware.Authentication, controller.CommentAction)
+		v1Comment.GET("/list", middleware.Authentication, controller.CommentList)
 	}
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

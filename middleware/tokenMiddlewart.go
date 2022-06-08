@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"dousheng-backend/common"
+	"dousheng-backend/util"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,6 +18,8 @@ func Authentication(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	userId, _ := util.TokenVerify(c.PostForm("token"))
+	c.Set("userId", userId)
 	c.Next()
 	return
 }

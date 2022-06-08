@@ -46,14 +46,13 @@ func PublishList(request *common.PublishListRequest) (int32, string) {
 	return http.StatusOK, "nil"
 }
 
-func PublishAction(request *common.PublishActionRequest) (int32, error) {
+func PublishAction(request *common.PublishActionRequest, userId uint) (int32, error) {
 	//用于防止视频重复
 	uid := uuid.NewV4().String()
 	//用于oss的二级目录
 	timeStr := time.Now().Format("2006-01-02")
-	//获取userid 用于oss的一级目录
-	userId, _ := util.TokenVerify(request.Token)
 
+	//var userId uint
 	//获取封面图在oss的路径
 	CoverUrl := setting.Conf.OSSConfig.SufferUrl + strconv.Itoa(int(userId)) + "/" + timeStr + "/" + uid + ".jpg"
 

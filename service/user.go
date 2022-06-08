@@ -59,20 +59,21 @@ func Login(request *common.RegAndLogRequest) common.RegAndLogResponse {
 		return common.RegAndLogResponse{StatusCode: http.StatusBadRequest, StatusMsg: "用户不存在", UserID: -1, Token: ""}
 	}
 }
-func UserInfo(request *common.UserInfoRequese) common.UserInfoResponse {
-	//userid := c.Query("user_id")
-	//token := c.Query("token")
-	//fmt.Println(userid)
-	//fmt.Println(token)
-	//if user, exist := usersLoginInfo["zhangleidouyin"]; exist {
-	//	c.JSON(http.StatusOK, UserResponse{
-	//		Response: Response{StatusCode: 0},
-	//		User:     user,
-	//	})
-	//} else {
-	//	c.JSON(http.StatusOK, UserResponse{
-	//		Response: Response{StatusCode: 1, StatusMsg: "User doesn't exist!!"},
-	//	})
-	//}
-	return common.UserInfoResponse{}
-}
+
+//func UserInfo(request *common.UserInfoRequese) common.UserInfoResponse {
+//userid := c.Query("user_id")
+//token := c.Query("token")
+//fmt.Println(userid)
+//fmt.Println(token)
+//if user, exist := usersLoginInfo["zhangleidouyin"]; exist {
+//	c.JSON(http.StatusOK, UserResponse{
+//		Response: Response{StatusCode: 0},
+//		User:     user,
+//	})
+//} else {
+//	c.JSON(http.StatusOK, UserResponse{
+//		Response: Response{StatusCode: 1, StatusMsg: "User doesn't exist!!"},
+//	})
+//}
+//return common.UserInfoResponse{}
+//}

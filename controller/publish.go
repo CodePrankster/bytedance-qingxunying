@@ -14,7 +14,8 @@ func PublishAction(c *gin.Context) {
 		fmt.Println("参数解析失败")
 		return
 	}
-	code, _ := service.PublishAction(request)
+	userId, _ := c.Get("userId")
+	code, _ := service.PublishAction(request, userId.(uint))
 	common.OK(c, code)
 	return
 }

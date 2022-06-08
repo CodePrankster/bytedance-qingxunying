@@ -23,12 +23,8 @@ func PublishAction(c *gin.Context) {
 
 func PublishList(c *gin.Context) {
 	// 参数解析
-	request := new(common.PublishListRequest)
-	if err := c.ShouldBindQuery(request); err != nil {
-		fmt.Println("参数解析失败")
-		return
-	}
-	response, err := service.PublishList(request)
+	userId, _ := c.Get("userId")
+	response, err := service.PublishList(userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response)
 	}

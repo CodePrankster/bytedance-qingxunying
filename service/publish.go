@@ -20,14 +20,13 @@ import (
 	"time"
 )
 
-func PublishList(request *common.PublishListRequest) (common.PublicListResponse, error) {
+func PublishList(userId uint) (common.PublicListResponse, error) {
 	//经过拦截器后表明请求是合法的，可以继续执行
 
 	//通过传来的user_id查询作者和作者的视频
-	userId := request.UserId
 	//1 查询用户的信息
 	//查询用户的名称
-	userName, err := mysql.SelectUserName(userId)
+	userName, err := mysql.SelectUserName(int64(userId))
 	if err != nil {
 		return common.PublicListResponse{
 			StatusCode: 1,
@@ -67,7 +66,7 @@ func PublishList(request *common.PublishListRequest) (common.PublicListResponse,
 
 	//组装用户的信息
 	author := common.User{
-		ID:            userId,
+		ID:            int64(userId),
 		Name:          userName,
 		FollowCount:   followCount,
 		FollowerCount: followerCount,
@@ -77,7 +76,7 @@ func PublishList(request *common.PublishListRequest) (common.PublicListResponse,
 	//2 查询视频的相关信息
 
 	//查询视频的基础信息
-	videoBaseList, err := mysql.SelectVideoListByUserId(request.UserId)
+	videoBaseList, err := mysql.SelectVideoListByUserId(int64(userId))
 	if err != nil {
 		return common.PublicListResponse{
 			StatusCode: 1,
@@ -118,7 +117,7 @@ func PublishList(request *common.PublishListRequest) (common.PublicListResponse,
 		}, err
 	}
 	//查询视频是否点赞
-	IsFavorite, err := redis.IsFavorite(string(request.UserId), string(VideoId))
+	IsFavorite, err := redis.IsFavorite(string(userId), string(VideoId))
 	if err != nil {
 		return common.PublicListResponse{
 			StatusCode: 1,

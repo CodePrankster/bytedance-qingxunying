@@ -43,7 +43,7 @@ func InsertVideo(video *model.Video) error {
 // SelectVideoListByUserId 根据id查询出用户的视频
 func SelectVideoListByUserId(id int64) ([]*model.Video, error) {
 	var videoList []*model.Video
-	if err := db.Select("id = ?", id).Find(&videoList).Error; err != nil {
+	if err := db.Find(&videoList).Where("uid = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return videoList, nil

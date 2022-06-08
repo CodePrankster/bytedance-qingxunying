@@ -23,12 +23,6 @@ type PublishActionRequest struct {
 	Title string                `form:"title"` // 视频的标题
 }
 
-// PublishListRequest 发布列表请求参数
-type PublishListRequest struct {
-	Token  string `json:"token"`   // 用户鉴权
-	UserId int64  `json:"user_id"` // 用户id
-}
-
 // RegAndLogRequest 注册请求参数
 type RegAndLogRequest struct {
 	Username string `form:"username" ` // 用户名

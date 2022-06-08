@@ -1,16 +1,19 @@
 package service
 
 import (
+	"crypto/md5"
 	"dousheng-backend/common"
 	"dousheng-backend/dao/mysql"
 	"dousheng-backend/model"
 	"dousheng-backend/util"
+	"encoding/hex"
 	"gorm.io/gorm"
 	"net/http"
 )
 
 //user_id从六位数开始向后生成
 //var userIdSequence = int64(99999)
+const secret = "byte.dance"
 
 func Register(request *common.RegAndLogRequest) common.RegAndLogResponse {
 	//1 长度检验
@@ -22,6 +25,8 @@ func Register(request *common.RegAndLogRequest) common.RegAndLogResponse {
 	if count != 0 {
 		return common.RegAndLogResponse{StatusCode: http.StatusBadRequest, StatusMsg: "用户名重复", UserID: -1, Token: ""}
 	}
+	// 密码加密
+	request.Password = encryptPassword(request.Password)
 	//3 插入数据库
 	registInfo := model.RegistInfo{
 		Model:    gorm.Model{},
@@ -47,6 +52,7 @@ func Register(request *common.RegAndLogRequest) common.RegAndLogResponse {
 
 func Login(request *common.RegAndLogRequest) common.RegAndLogResponse {
 	//1 链接数据库验证账号密码获取id
+	request.Password = encryptPassword(request.Password)
 	user := mysql.SelectUser(request.Username, request.Password)
 	userId := user.Model.ID
 	if userId != 0 {
@@ -58,6 +64,13 @@ func Login(request *common.RegAndLogRequest) common.RegAndLogResponse {
 		//不存在
 		return common.RegAndLogResponse{StatusCode: http.StatusBadRequest, StatusMsg: "用户不存在", UserID: -1, Token: ""}
 	}
+}
+
+// encryptPassword 密码加密
+func encryptPassword(oPassword string) string {
+	h := md5.New()
+	h.Write([]byte(secret))
+	return hex.EncodeToString(h.Sum([]byte(oPassword)))
 }
 
 //func UserInfo(request *common.UserInfoRequese) common.UserInfoResponse {

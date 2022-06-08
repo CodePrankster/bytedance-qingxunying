@@ -20,30 +20,132 @@ import (
 	"time"
 )
 
-func PublishList(request *common.PublishListRequest) (int32, string) {
+func PublishList(request *common.PublishListRequest) (common.PublicListResponse, error) {
 	//经过拦截器后表明请求是合法的，可以继续执行
 
 	//通过传来的user_id查询作者和作者的视频
-	//1 查询作者的信息
-	user, err := redis.GetVideoFavoriteNum(string(request.UserId))
+	userId := request.UserId
+	//1 查询用户的信息
+	//查询用户的名称
+	userName, err := mysql.SelectUserName(userId)
 	if err != nil {
-
+		return common.PublicListResponse{
+			StatusCode: 1,
+			StatusMsg:  "用户名称获取失败",
+			VideoList:  nil,
+		}, err
 	}
-	//2 查询作者的视频
-	videoList, err := mysql.SelectVideoListByUserId(request.UserId)
-	if err != nil {
 
+	//查询用户的关注总数
+	followCount, err := redis.GetFollowCount(string(userId))
+
+	if err != nil {
+		return common.PublicListResponse{
+			StatusCode: 1,
+			StatusMsg:  "用户关注总数获取失败",
+			VideoList:  nil,
+		}, err
+	}
+	//查询用户的粉丝总数
+	followerCount, err := redis.GetFollowerCount(string(userId))
+	if err != nil {
+		return common.PublicListResponse{
+			StatusCode: 1,
+			StatusMsg:  "用户粉丝总数获取失败",
+			VideoList:  nil,
+		}, err
+	}
+	//客户端查询用户是否关注
+	isFollow, err := redis.IsFollow(string(userId), string(userId))
+	if err != nil {
+		return common.PublicListResponse{
+			StatusCode: 1,
+			StatusMsg:  "查询用户是否关注操作失败",
+			VideoList:  nil,
+		}, err
+	}
+
+	//组装用户的信息
+	author := common.User{
+		ID:            userId,
+		Name:          userName,
+		FollowCount:   followCount,
+		FollowerCount: followerCount,
+		IsFollow:      isFollow,
+	}
+
+	//2 查询视频的相关信息
+
+	//查询视频的基础信息
+	videoBaseList, err := mysql.SelectVideoListByUserId(request.UserId)
+	if err != nil {
+		return common.PublicListResponse{
+			StatusCode: 1,
+			StatusMsg:  "查询用户视频操作失败",
+			VideoList:  nil,
+		}, err
+	}
+	//判断用户是否有视频
+
+	if len(videoBaseList) == 0 {
+		return common.PublicListResponse{
+			StatusCode: 0,
+			StatusMsg:  "查询成功",
+			VideoList:  nil,
+		}, nil
+	}
+	VideoId := videoBaseList[0].ID
+	PlayUrl := videoBaseList[0].PlayUrl
+	CoverUrl := videoBaseList[0].CoverUrl
+	Title := videoBaseList[0].Title
+
+	//查询视频的点赞总数
+	FavoriteCount, err := redis.GetVideoFavoriteNum(string(VideoId))
+	if err != nil {
+		return common.PublicListResponse{
+			StatusCode: 1,
+			StatusMsg:  "查询视频点赞操作失败",
+			VideoList:  nil,
+		}, err
+	}
+	//查询视频的评论总数
+	CommentCount, err := mysql.GetVideoCommentNum(int64(VideoId))
+	if err != nil {
+		return common.PublicListResponse{
+			StatusCode: 1,
+			StatusMsg:  "查询视频评论总数操作失败",
+			VideoList:  nil,
+		}, err
+	}
+	//查询视频是否点赞
+	IsFavorite, err := redis.IsFavorite(string(request.UserId), string(VideoId))
+	if err != nil {
+		return common.PublicListResponse{
+			StatusCode: 1,
+			StatusMsg:  "查询视频是否点赞操作失败",
+			VideoList:  nil,
+		}, err
 	}
 	//3 封装数据返回
-	fmt.Println(user)
-	fmt.Println(videoList)
-	//var res []common.Video
-	//for i := 0; i < len(videoList); i++ {
-	//	res[i].Author = user
-	//
-	//}
 
-	return http.StatusOK, "nil"
+	videos := make([]common.Video, len(videoBaseList))
+
+	for i := 0; i < len(videos); i++ {
+		videos[i].Id = int64(VideoId)
+		videos[i].Author = author
+		videos[i].PlayUrl = PlayUrl
+		videos[i].CoverUrl = CoverUrl
+		videos[i].FavoriteCount = FavoriteCount
+		videos[i].CommentCount = CommentCount
+		videos[i].IsFavorite = IsFavorite
+		videos[i].Title = Title
+	}
+
+	return common.PublicListResponse{
+		StatusCode: 0,
+		StatusMsg:  "查询成功",
+		VideoList:  videos,
+	}, nil
 }
 
 func PublishAction(request *common.PublishActionRequest, userId uint) (int32, error) {
@@ -51,8 +153,6 @@ func PublishAction(request *common.PublishActionRequest, userId uint) (int32, er
 	uid := uuid.NewV4().String()
 	//用于oss的二级目录
 	timeStr := time.Now().Format("2006-01-02")
-
-	//var userId uint
 	//获取封面图在oss的路径
 	CoverUrl := setting.Conf.OSSConfig.SufferUrl + strconv.Itoa(int(userId)) + "/" + timeStr + "/" + uid + ".jpg"
 
@@ -67,12 +167,11 @@ func PublishAction(request *common.PublishActionRequest, userId uint) (int32, er
 
 	//2 将获取的所有结果存入到数据库
 	video := model.Video{
-		Model:      gorm.Model{},
-		Uid:        userId,
-		PlayUrl:    PlayUrl,
-		CoverUrl:   CoverUrl,
-		Title:      request.Title,
-		IsFavorite: false,
+		Model:    gorm.Model{},
+		Uid:      userId,
+		PlayUrl:  PlayUrl,
+		CoverUrl: CoverUrl,
+		Title:    request.Title,
 	}
 
 	err := mysql.InsertVideo(&video)
@@ -124,7 +223,6 @@ func getVedioFirstImg(timeStr string, uid string, userId uint, bucket *oss.Bucke
 		outputerror += fmt.Sprintf("lastframecmderr:%v;", err)
 	}
 	//2 将本地的temp的封面图进行上传
-
 	filename := strconv.Itoa(int(userId)) + "/" + timeStr + "/" + uid + ".jpg"
 	bucket.PutObjectFromFile(filename, coverInServer)
 }

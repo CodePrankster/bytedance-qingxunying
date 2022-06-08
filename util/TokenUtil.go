@@ -12,7 +12,7 @@ type MyCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func GetToken(userId uint, request *common.RegAndLogRequest) string {
+func GetToken(userId int64, request *common.RegAndLogRequest) string {
 	secretKey := []byte("bytedance")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyCustomClaims{int64(userId), request.Username,
 		request.Password, jwt.StandardClaims{}})

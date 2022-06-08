@@ -37,8 +37,8 @@ type RegAndLogRequest struct {
 
 // UserInfoRequese 用户信息请求参数
 type UserInfoRequese struct {
-	Token  string `json:"token"`  // 用户鉴权
-	UserId int64  `json:"userId"` // 用户id
+	Token  string `json:"token"`   // 用户鉴权
+	UserId int64  `json:"user_id"` // 用户id
 }
 
 // RelationActionRequest 关系操作参数

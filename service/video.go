@@ -71,6 +71,7 @@ func GetUsersByVideoIds(videos []*model.Video) ([]*VideoInfo, error) {
 		return nil, err
 	}
 	videoInfos := make([]*VideoInfo, 0)
+
 	for _, video := range videos {
 		user := userMap[video.Uid]
 		vid := strconv.Itoa(int(video.ID))
@@ -84,13 +85,15 @@ func GetUsersByVideoIds(videos []*model.Video) ([]*VideoInfo, error) {
 		if err != nil {
 			return nil, err
 		}
+		IsFavorite, _ := redis.IsFavorite(string(user.ID), string(vid))
+
 		videoInfos = append(videoInfos, &VideoInfo{
 			ID:            video.ID,
 			PlayUrl:       video.PlayUrl,
 			CoverUrl:      video.CoverUrl,
 			FavoriteCount: num,
 			CommentCount:  commentNum, // TODO 查询评论数量
-			IsFavorite:    video.IsFavorite,
+			IsFavorite:    IsFavorite,
 			Title:         video.Title,
 			User:          user,
 		})

@@ -10,7 +10,16 @@ import (
 
 func Authentication(c *gin.Context) {
 	//Token解析示例
-	_, err := jwt.Parse(c.PostForm("token"), func(token *jwt.Token) (interface{}, error) {
+
+	method := c.Request.Method
+	var token string
+	if method == "POST" {
+		token = c.PostForm("token")
+	} else {
+		token = c.Query("token")
+	}
+
+	_, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte("bytedance"), nil
 	})
 	if err != nil {
@@ -18,7 +27,7 @@ func Authentication(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	userId, _ := util.TokenVerify(c.PostForm("token"))
+	userId, _ := util.TokenVerify(token)
 	c.Set("userId", userId)
 	c.Next()
 	return

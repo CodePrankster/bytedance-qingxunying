@@ -83,13 +83,15 @@ func (f *VideoListInfo) FavoriteList(request *common.FavoriteListRequest) (error
 		if err != nil {
 			return err, nil
 		}
+		IsFavorite, _ := redis.IsFavorite(string(user.ID), string(vid))
+		commentNum, err := mysql.GetVideoCommentNum(int64(video.ID))
 		videoInfos = append(videoInfos, &VideoInfo{
 			ID:            video.ID,
 			PlayUrl:       video.PlayUrl,
 			CoverUrl:      video.CoverUrl,
 			FavoriteCount: num,
-			CommentCount:  1, // TODO 查询评论数量
-			IsFavorite:    video.IsFavorite,
+			CommentCount:  commentNum,
+			IsFavorite:    IsFavorite,
 			Title:         video.Title,
 			User:          user,
 		})

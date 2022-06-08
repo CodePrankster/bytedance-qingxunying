@@ -5,6 +5,7 @@ import (
 	"dousheng-backend/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func PublishAction(c *gin.Context) {
@@ -23,10 +24,14 @@ func PublishAction(c *gin.Context) {
 func PublishList(c *gin.Context) {
 	// 参数解析
 	request := new(common.PublishListRequest)
-	if err := c.Bind(request); err != nil {
+	if err := c.ShouldBindQuery(request); err != nil {
 		fmt.Println("参数解析失败")
 		return
 	}
-	//code, msg, videoList := service.PublishList(request)
+	response, err := service.PublishList(request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response)
+	}
+	c.JSON(http.StatusOK, response)
 	return
 }

@@ -20,16 +20,16 @@ func InitRouter() *gin.Engine {
 	{
 		v1Publish.GET("/feed/", controller.FeedList)
 		v1Publish.POST("/action/", middleware.Authentication, controller.PublishAction)
-		//v1Publish.GET("/list/", controller.FavoriteList)
+		v1Publish.GET("/list/", middleware.Authentication, controller.PublishList)
 	}
 	v1User := v1.Group("/user")
 	{
 		v1User.POST("/login/", controller.Login)
 		v1User.POST("/register/", controller.Register)
-		//v1Publish.GET("/list/", controller.FavoriteList)
+		v1User.GET("/", middleware.Authentication, controller.UserInfo)
 	}
 
-	v1Relation := v1.Group("relation")
+	v1Relation := v1.Group("/relation")
 	{
 		v1Relation.POST("/action/", middleware.Authentication, controller.RelationAvtion)
 		v1Relation.GET("/follow/list/", middleware.Authentication, controller.FollowList)

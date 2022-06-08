@@ -34,14 +34,21 @@ func Login(c *gin.Context) {
 	return
 }
 
-//待开发
-//func UserInfo(c *gin.Context) common.UserInfoResponse {
-//	// 参数解析
-//	request := new(common.UserInfoRequese)
-//	err := c.Bind(request)
-//	if err != nil {
-//		return common.UserInfoResponse{StatusCode: http.StatusBadRequest, StatusMsg: "参数解析错误", User: common.User{}}
-//	}
-//	response := service.UserInfo(request)
-//	return response
-//}
+//UserInfo 获取用户的信息
+func UserInfo(c *gin.Context) {
+	// 参数解析
+
+	request := new(common.UserInfoRequese)
+	err := c.ShouldBindQuery(request)
+	if err != nil {
+		fmt.Println("参数解析失败")
+		return
+	}
+	userId, _ := c.Get("userId")
+	response, err := service.UserInfoService(request, userId.(uint))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response)
+	}
+	c.JSON(http.StatusOK, response)
+	return
+}

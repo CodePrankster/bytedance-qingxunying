@@ -35,6 +35,11 @@ func InitRouter() *gin.Engine {
 		v1Relation.GET("/follower/list/", controller.FollowerList)
 	}
 
+	v1Comment := v1.Group("comment")
+	{
+		v1Comment.POST("/action", controller.CommentAction)
+		v1Comment.GET("/list", controller.CommentList)
+	}
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"code": "404",

@@ -5,6 +5,7 @@ import (
 	"dousheng-backend/dao/redis"
 	"dousheng-backend/router"
 	"dousheng-backend/setting"
+	"dousheng-backend/util"
 	"fmt"
 )
 
@@ -29,7 +30,11 @@ func main() {
 
 	// 路由初始化
 	r := router.InitRouter()
-
+	err := util.GetBuck()
+	if err != nil {
+		fmt.Printf("bucket get failed, err:%v\n", err)
+		return
+	}
 	if err := r.Run(fmt.Sprintf(":%d", setting.Conf.Port)); err != nil {
 		fmt.Printf("run server failed, err:%v\n", err)
 		return

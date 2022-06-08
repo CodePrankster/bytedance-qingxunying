@@ -20,10 +20,19 @@ func UpdateVideoById(id, num string) error {
 	return nil
 }
 
-// UpdateVideoById 根据id更新数据
-func InsertVideo(video model.Video) error {
-	if err := db.Create(&video).Error; err != nil {
+// InsertVideo
+func InsertVideo(video *model.Video) error {
+	if err := db.Create(video).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+// SelectVideoListByUserId 根据id查询出用户的视频
+func SelectVideoListByUserId(id int64) ([]*model.Video, error) {
+	var videoList []*model.Video
+	if err := db.Select("id = ?", id).Find(&videoList).Error; err != nil {
+		return nil, err
+	}
+	return videoList, nil
 }

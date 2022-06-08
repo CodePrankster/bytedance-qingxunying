@@ -10,15 +10,22 @@ import (
 func PublishAction(c *gin.Context) {
 	// 参数解析
 	request := new(common.PublishActionRequest)
+	if err := c.ShouldBind(request); err != nil {
+		fmt.Println("参数解析失败")
+		return
+	}
+	code, _ := service.PublishAction(request)
+	common.OK(c, code)
+	return
+}
+
+func PublishList(c *gin.Context) {
+	// 参数解析
+	request := new(common.PublishListRequest)
 	if err := c.Bind(request); err != nil {
 		fmt.Println("参数解析失败")
 		return
 	}
-	code, err := service.PublishAction(request)
-	if err != nil {
-		common.Error(c, code)
-		return
-	}
-	common.OK(c, code)
+	//code, msg, videoList := service.PublishList(request)
 	return
 }

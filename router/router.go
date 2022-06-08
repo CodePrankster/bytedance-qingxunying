@@ -2,6 +2,7 @@ package router
 
 import (
 	"dousheng-backend/controller"
+	"dousheng-backend/middleware"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -17,7 +18,13 @@ func InitRouter() *gin.Engine {
 	}
 	v1Publish := v1.Group("/publish")
 	{
-		v1Publish.POST("/action/", controller.PublishAction)
+		v1Publish.POST("/action/", middleware.Authentication, controller.PublishAction)
+		//v1Publish.GET("/list/", controller.FavoriteList)
+	}
+	v1User := v1.Group("/user")
+	{
+		v1User.POST("/login/", controller.Login)
+		v1User.POST("/register/", controller.Register)
 		//v1Publish.GET("/list/", controller.FavoriteList)
 	}
 

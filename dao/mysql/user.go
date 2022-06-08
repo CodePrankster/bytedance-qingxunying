@@ -19,3 +19,22 @@ func MQueryUserById(ids []uint) (map[uint]*model.User, error) {
 
 	return userMap, nil
 }
+func CheckUserName(username string) int8 {
+	var registInfo model.RegistInfo
+	db.First(&registInfo, "user_name = ?", username)
+	if registInfo.UserName != "" {
+		return 1
+	}
+	return 0
+}
+func SelectUser(username string, password string) *model.RegistInfo {
+	var registInfo *model.RegistInfo
+	db.First(&registInfo, "user_name = ? and password = ?", username, password)
+	return registInfo
+}
+func InsertUserInfo(info model.User) error {
+	if err := db.Create(&info).Error; err != nil {
+		return err
+	}
+	return nil
+}

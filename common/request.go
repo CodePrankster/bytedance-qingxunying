@@ -12,9 +12,8 @@ type FavoriteActionRequest struct {
 
 // FavoriteListRequest 点赞请求参数
 type FavoriteListRequest struct {
-	UserId int64 `json:"user_id" form:"user_id"` // 用户id
-
-	Token string `json:"token" form:"token"` // 用户鉴权
+	UserId int64  `json:"user_id" form:"user_id"` // 用户id
+	Token  string `json:"token" form:"token"`     // 用户鉴权
 }
 
 // PublishActionRequest 发布视频请求参数
@@ -22,4 +21,22 @@ type PublishActionRequest struct {
 	Data  *multipart.FileHeader `form:"data"`  // 上传的视频
 	Token string                `form:"token"` // 用户鉴权
 	Title string                `form:"title"` // 视频的标题
+}
+
+// PublishListRequest 发布列表请求参数
+type PublishListRequest struct {
+	Token  string `json:"token"`   // 用户鉴权
+	UserId int64  `json:"user_id"` // 用户id
+}
+
+// RegistRequest 注册请求参数
+type RegAndLogRequest struct {
+	Username string `form:"username" ` // 用户名
+	Password string `form:"password" ` // 密码
+}
+
+// UserInfoRequese 用户信息请求参数
+type UserInfoRequese struct {
+	Token  string `json:"token"`  // 用户鉴权
+	UserId int64  `json:"userId"` // 用户id
 }

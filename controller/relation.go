@@ -21,7 +21,6 @@ func RelationAvtion(c *gin.Context) {
 	// 参数解析
 	request := new(common.RelationActionRequest)
 
-	fmt.Println(c.Query("to_user_id"))
 	if err := c.ShouldBindQuery(request); err != nil {
 		fmt.Println("参数解析失败")
 		return

@@ -6,7 +6,6 @@ import (
 	"dousheng-backend/dao/redis"
 	"dousheng-backend/model"
 	"dousheng-backend/util"
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -37,7 +36,6 @@ func (v *VideoFeedListInfo) FeedList(request *common.FeedRequest) (*VideoFeedLis
 		return nil, err
 	}
 
-	fmt.Println(len(videos) - 1)
 	if len(videos)-1 >= 0 {
 		v.NextTime = videos[len(videos)-1].UpdatedAt.Unix()
 	}

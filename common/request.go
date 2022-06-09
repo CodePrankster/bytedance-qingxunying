@@ -4,7 +4,7 @@ import "mime/multipart"
 
 // FavoriteActionRequest 点赞请求参数
 type FavoriteActionRequest struct {
-	UserId     int64  `json:"user_id" form:"user_id"`         // 用户id
+	UserId     uint   `json:"user_id" form:"user_id"`         // 用户id
 	VideoId    int64  `json:"video_id" form:"video_id"`       // 视频id
 	Token      string `json:"token" form:"token"`             // 用户鉴权
 	ActionType int32  `json:"action_type" form:"action_type"` // 点赞类型  1-点赞，2-取消点赞
@@ -12,7 +12,7 @@ type FavoriteActionRequest struct {
 
 // FavoriteListRequest 点赞请求参数
 type FavoriteListRequest struct {
-	UserId int64  `json:"user_id" form:"user_id"` // 用户id
+	UserId uint   `json:"user_id" form:"user_id"` // 用户id
 	Token  string `json:"token" form:"token"`     // 用户鉴权
 }
 

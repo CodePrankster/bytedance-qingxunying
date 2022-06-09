@@ -25,7 +25,7 @@ func FavoriteAction(c *gin.Context) {
 		fmt.Println("参数解析失败")
 		return
 	}
-	request.UserId = uid.(int64)
+	request.UserId = uid.(uint)
 	code, err := service.FavoriteAction(request)
 	if err != nil {
 		common.Error(c, code)

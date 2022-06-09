@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"net/http"
+	"strconv"
 )
 
 //user_id从六位数开始向后生成
@@ -81,7 +82,7 @@ func Login(request *common.RegAndLogRequest) common.RegAndLogResponse {
 
 func UserInfoService(userId uint) (common.UserInfoResponse, error) {
 
-	userInfo, err := GetUserBaseInfo(userId)
+	userInfo, err := GetUserBaseInfo(userId, strconv.Itoa(int(userId)))
 	if err != nil {
 		return common.UserInfoResponse{}, err
 	}
@@ -101,34 +102,35 @@ func encryptPassword(oPassword string) string {
 	return hex.EncodeToString(h.Sum([]byte(oPassword)))
 }
 
-func GetUserBaseInfo(userId uint) (common.User, error) {
+func GetUserBaseInfo(toUserId uint, userId string) (common.User, error) {
 	//查询用户的名称
-	userName, err := mysql.SelectUserName(int64(userId))
+	userName, err := mysql.SelectUserName(int64(toUserId))
 	if err != nil {
 		return common.User{}, err
 	}
 
+	uid := strconv.Itoa(int(toUserId))
 	//查询用户的关注总数
-	followCount, err := redis.GetFollowCount(string(int64(userId)))
+	followCount, err := redis.GetFollowCount(uid)
 	if err != nil {
 		return common.User{}, err
 	}
 
 	//查询用户的粉丝总数
-	followerCount, err := redis.GetFollowerCount(string(int64(userId)))
+	followerCount, err := redis.GetFollowerCount(uid)
 	if err != nil {
 		return common.User{}, err
 	}
 
 	//客户端查询用户是否关注
-	isFollow, err := redis.IsFollow(string(int64(userId)), string(int64(userId)))
+	isFollow, err := redis.IsFollow(userId, uid)
 	if err != nil {
 		return common.User{}, err
 	}
 
 	//组装用户的信息
 	author := common.User{
-		ID:            int64(userId),
+		ID:            toUserId,
 		Name:          userName,
 		FollowCount:   followCount,
 		FollowerCount: followerCount,

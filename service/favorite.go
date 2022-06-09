@@ -57,7 +57,7 @@ func (f *VideoListInfo) FavoriteList(request *common.FavoriteListRequest) (error
 
 	for _, video := range videoList {
 		//查询用户基本信息
-		author, err := GetUserBaseInfo(video.Uid)
+		author, err := GetUserBaseInfo(video.Uid, strconv.Itoa(int(video.Uid)))
 
 		if err != nil {
 			if err != nil {
@@ -69,7 +69,9 @@ func (f *VideoListInfo) FavoriteList(request *common.FavoriteListRequest) (error
 		if err != nil {
 			return err, nil
 		}
-		IsFavorite, _ := redis.IsFavorite(string(request.UserId), string(vid))
+
+		uid := strconv.Itoa(int(request.UserId))
+		IsFavorite, _ := redis.IsFavorite(uid, vid)
 		commentNum, err := mysql.GetVideoCommentNum(int64(video.ID))
 
 		videoInfos = append(videoInfos, &common.Video{

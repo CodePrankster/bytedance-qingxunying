@@ -74,7 +74,7 @@ func GetUsersByVideoIds(videos []*model.Video, userId uint) ([]*common.Video, er
 	for _, video := range videos {
 
 		//查询用户基本信息
-		author, err := GetUserBaseInfo(video.Uid)
+		author, err := GetUserBaseInfo(video.Uid, strconv.Itoa(int(video.Uid)))
 		if err != nil {
 			return nil, err
 		}
@@ -90,7 +90,8 @@ func GetUsersByVideoIds(videos []*model.Video, userId uint) ([]*common.Video, er
 		if err != nil {
 			return nil, err
 		}
-		IsFavorite, _ := redis.IsFavorite(string(userId), string(vid))
+		uid := strconv.Itoa(int(userId))
+		IsFavorite, _ := redis.IsFavorite(uid, vid)
 
 		videoInfos = append(videoInfos, &common.Video{
 			ID:            int64(video.ID),

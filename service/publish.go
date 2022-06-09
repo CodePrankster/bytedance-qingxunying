@@ -26,7 +26,7 @@ func PublishList(userId uint) (common.PublicListResponse, error) {
 	//通过传来的user_id查询作者和作者的视频
 	//1 查询用户的信息
 	//查询用户的名称
-	author, err := GetUserBaseInfo(userId)
+	author, err := GetUserBaseInfo(userId, strconv.Itoa(int(userId)))
 	if err != nil {
 		return common.PublicListResponse{
 			StatusCode: 1,

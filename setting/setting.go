@@ -16,6 +16,7 @@ type AppConfig struct {
 	*MySQLConfig  `mapstructure:"mysql"`
 	*RedisConfig  `mapstructure:"redis"`
 	*OSSConfig    `mapstructure:"oss"`
+	*LogConfig    `mapstructure:"log"`
 }
 
 // 定义mysql配置文件的结构体
@@ -45,6 +46,15 @@ type OSSConfig struct {
 	AccessKeySecret string `mapstructure:"access_key_secret"`
 	BucketName      string `mapstructure:"bucket_name"`
 	SufferUrl       string `mapstructure:"suffer_url"`
+}
+
+// 日志配置文件的结构体
+type LogConfig struct {
+	Level      string `mapstructure:"level"`
+	Filename   string `mapstructure:"filename"`
+	MaxSize    int    `mapstructure:"max_size"`
+	MaxAge     int    `mapstructure:"max_age"`
+	MaxBackups int    `mapstructure:"max_backups"`
 }
 
 func Init() error {

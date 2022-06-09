@@ -3,6 +3,7 @@ package main
 import (
 	"dousheng-backend/dao/mysql"
 	"dousheng-backend/dao/redis"
+	"dousheng-backend/logger"
 	"dousheng-backend/router"
 	"dousheng-backend/setting"
 	"dousheng-backend/util"
@@ -27,7 +28,10 @@ func main() {
 		return
 	}
 	defer redis.Close()
-
+	if err := logger.Init(setting.Conf.LogConfig, "dev"); err != nil {
+		fmt.Printf("init logger failed, err:%v\n", err)
+		return
+	}
 	// 路由初始化
 	r := router.InitRouter()
 	err := util.GetBuck()

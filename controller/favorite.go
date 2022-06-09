@@ -2,6 +2,7 @@ package controller
 
 import (
 	"dousheng-backend/common"
+	"go.uber.org/zap"
 	"net/http"
 
 	"dousheng-backend/service"
@@ -16,6 +17,7 @@ func FavoriteAction(c *gin.Context) {
 	uid, ok := c.Get("userId")
 	if !ok {
 		fmt.Println(common.GetMsg(common.CodeNeedLogin))
+		zap.L().Error("没有登录")
 		common.Error(c, common.CodeNeedLogin)
 		return
 	}
@@ -23,6 +25,7 @@ func FavoriteAction(c *gin.Context) {
 	request := new(common.FavoriteActionRequest)
 	if err := c.ShouldBindQuery(request); err != nil {
 		fmt.Println("参数解析失败")
+		zap.L().Error("参数解析失败", zap.Error(err))
 		return
 	}
 	request.UserId = uid.(uint)

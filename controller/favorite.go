@@ -13,13 +13,19 @@ import (
 func FavoriteAction(c *gin.Context) {
 	// 参数校验，只能支持登录的用户点赞
 	// 判断用户是否登录
-
+	uid, ok := c.Get("userId")
+	if !ok {
+		fmt.Println(common.GetMsg(common.CodeNeedLogin))
+		common.Error(c, common.CodeNeedLogin)
+		return
+	}
 	// 参数解析
 	request := new(common.FavoriteActionRequest)
 	if err := c.ShouldBindQuery(request); err != nil {
 		fmt.Println("参数解析失败")
 		return
 	}
+	request.UserId = uid.(int64)
 	code, err := service.FavoriteAction(request)
 	if err != nil {
 		common.Error(c, code)

@@ -57,11 +57,11 @@ type RelationFollowerListRequest struct {
 
 // CommentRequest 发布评论参数
 type CommentRequest struct {
-	Token       string `json:"token"`
-	VideoId     int64  `json:"video_id"`
-	ActionType  int32  `json:"action_type"`            // 1-发布评论，2-删除评论
-	CommentText string `json:"comment_text,omitempty"` //用户填写的评论内容，在action_type=1的时候使用
-	CommentId   int64  `json:"comment_id,omitempty"`   // 要删除的评论id，在action_type=2的时候使用
+	Token       string `json:"token" form:"token"`
+	VideoId     int64  `json:"video_id" form:"video_id"`
+	ActionType  int32  `json:"action_type" form:"action_type"`                       // 1-发布评论，2-删除评论
+	CommentText string `json:"comment_text,omitempty" form:"comment_text,omitempty"` //用户填写的评论内容，在action_type=1的时候使用
+	CommentId   int64  `json:"comment_id,omitempty" form:"comment_id,omitempty"`     // 要删除的评论id，在action_type=2的时候使用
 }
 
 // CommentListRequest 评论列表参数

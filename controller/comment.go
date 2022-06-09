@@ -20,7 +20,7 @@ func CommentAction(c *gin.Context) {
 	}
 	// 解析参数
 	request := new(common.CommentRequest)
-	if err := c.ShouldBindJSON(request); err != nil {
+	if err := c.ShouldBindQuery(request); err != nil {
 		fmt.Println("参数解析失败")
 		return
 	}

@@ -16,7 +16,7 @@ func FavoriteAction(c *gin.Context) {
 
 	// 参数解析
 	request := new(common.FavoriteActionRequest)
-	if err := c.ShouldBindJSON(request); err != nil {
+	if err := c.ShouldBindQuery(request); err != nil {
 		fmt.Println("参数解析失败")
 		return
 	}

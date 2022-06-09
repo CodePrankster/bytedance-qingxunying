@@ -35,7 +35,7 @@ func SelectUser(username string, password string) *model.RegistInfo {
 
 func SelectUserName(userId int64) (string, error) {
 	var user *model.User
-	db.Select("name").Find(&user).Where("id = ?", userId)
+	db.Select("name").Where("id = ?", userId).First(&user)
 	return user.Name, nil
 }
 func InsertUserInfo(info model.User) error {

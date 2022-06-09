@@ -11,6 +11,7 @@ func InitRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	v1 := r.Group("/douyin")
+	v1.GET("/feed/", controller.FeedList)
 	v1Favorite := v1.Group("/favorite")
 	{
 		v1Favorite.POST("/action/", middleware.Authentication, controller.FavoriteAction)
@@ -18,7 +19,7 @@ func InitRouter() *gin.Engine {
 	}
 	v1Publish := v1.Group("/publish")
 	{
-		v1Publish.GET("/feed/", controller.FeedList)
+
 		v1Publish.POST("/action/", middleware.Authentication, controller.PublishAction)
 		v1Publish.GET("/list/", middleware.Authentication, controller.PublishList)
 	}

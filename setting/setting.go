@@ -49,7 +49,7 @@ type OSSConfig struct {
 
 func Init() error {
 	//viper.SetConfigFile("./conf/config.yml")   为了测试通过 先注释掉你
-	viper.SetConfigFile("E:\\program_WorkSpace\\school\\Projects\\byteDance-project\\dousheng-backend\\conf\\config.yml")
+	viper.SetConfigFile("E:\\program_WorkSpace\\school\\Projects\\byteDance-project\\bytedance-qingxunying\\conf\\config.yml")
 	err := viper.ReadInConfig() // 读取配置信息
 	if err != nil {
 		fmt.Printf("viper.ReadInConfig failed, err:%v\n", err)

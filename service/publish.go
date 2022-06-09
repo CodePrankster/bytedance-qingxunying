@@ -130,7 +130,7 @@ func PublishList(userId uint) (common.PublicListResponse, error) {
 	videos := make([]common.Video, len(videoBaseList))
 
 	for i := 0; i < len(videos); i++ {
-		videos[i].Id = int64(VideoId)
+		videos[i].Id = int64(videoBaseList[i].ID)
 		videos[i].Author = author
 		videos[i].PlayUrl = PlayUrl
 		videos[i].CoverUrl = CoverUrl

@@ -11,12 +11,12 @@ import (
 func Authentication(c *gin.Context) {
 	//Token解析示例
 
-	method := c.Request.Method
+	header := c.GetHeader("Content-Type")
 	var token string
-	if method == "POST" {
-		token = c.PostForm("token")
-	} else {
+	if header == "" { //token通过参数传递
 		token = c.Query("token")
+	} else { //token通过body传递
+		token = c.PostForm("token")
 	}
 
 	_, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {

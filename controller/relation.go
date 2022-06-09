@@ -12,13 +12,21 @@ import (
 func RelationAvtion(c *gin.Context) {
 	// 参数校验，只能支持登录的用户关注
 	// 判断用户是否登录
-
+	uid, ok := c.Get("userId")
+	if !ok {
+		fmt.Println(common.GetMsg(common.CodeNeedLogin))
+		common.Error(c, common.CodeNeedLogin)
+		return
+	}
 	// 参数解析
 	request := new(common.RelationActionRequest)
-	if err := c.ShouldBindJSON(request); err != nil {
+
+	fmt.Println(c.Query("to_user_id"))
+	if err := c.ShouldBindQuery(request); err != nil {
 		fmt.Println("参数解析失败")
 		return
 	}
+	request.UserId = uid.(uint)
 	code, err := service.RelationAction(request)
 	if err != nil {
 		common.Error(c, code)

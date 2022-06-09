@@ -94,9 +94,6 @@ func PublishList(userId uint) (common.PublicListResponse, error) {
 		}, nil
 	}
 	VideoId := videoBaseList[0].ID
-	PlayUrl := videoBaseList[0].PlayUrl
-	CoverUrl := videoBaseList[0].CoverUrl
-	Title := videoBaseList[0].Title
 
 	//查询视频的点赞总数
 	FavoriteCount, err := redis.GetVideoFavoriteNum(string(VideoId))
@@ -132,12 +129,12 @@ func PublishList(userId uint) (common.PublicListResponse, error) {
 	for i := 0; i < len(videos); i++ {
 		videos[i].Id = int64(videoBaseList[i].ID)
 		videos[i].Author = author
-		videos[i].PlayUrl = PlayUrl
-		videos[i].CoverUrl = CoverUrl
+		videos[i].PlayUrl = videoBaseList[i].PlayUrl
+		videos[i].CoverUrl = videoBaseList[i].CoverUrl
 		videos[i].FavoriteCount = FavoriteCount
 		videos[i].CommentCount = CommentCount
 		videos[i].IsFavorite = IsFavorite
-		videos[i].Title = Title
+		videos[i].Title = videoBaseList[i].Title
 	}
 
 	return common.PublicListResponse{

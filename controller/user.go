@@ -45,7 +45,7 @@ func UserInfo(c *gin.Context) {
 		return
 	}
 	userId, _ := c.Get("userId")
-	response, err := service.UserInfoService(request, userId.(uint))
+	response, err := service.UserInfoService(userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response)
 	}

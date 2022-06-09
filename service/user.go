@@ -79,48 +79,51 @@ func Login(request *common.RegAndLogRequest) common.RegAndLogResponse {
 
 }
 
-func UserInfoService(request *common.UserInfoRequese, userId uint) (common.UserInfoResponse, error) {
+func UserInfoService(userId uint) (common.UserInfoResponse, error) {
+
+	userInfo, err := GetUserBaseInfo(userId)
+	if err != nil {
+		return common.UserInfoResponse{}, err
+	}
+	//返回用户的信息
+	msg := "查询成功"
+	return common.UserInfoResponse{
+		StatusCode: 0,
+		StatusMsg:  &msg,
+		User:       userInfo,
+	}, nil
+}
+
+// encryptPassword 密码加密
+func encryptPassword(oPassword string) string {
+	h := md5.New()
+	h.Write([]byte(secret))
+	return hex.EncodeToString(h.Sum([]byte(oPassword)))
+}
+
+func GetUserBaseInfo(userId uint) (common.User, error) {
 	//查询用户的名称
 	userName, err := mysql.SelectUserName(int64(userId))
 	if err != nil {
-		msg := "用户名称获取失败"
-		return common.UserInfoResponse{
-			StatusCode: 1,
-			StatusMsg:  &msg,
-			User:       common.User{},
-		}, err
+		return common.User{}, err
 	}
 
 	//查询用户的关注总数
 	followCount, err := redis.GetFollowCount(string(int64(userId)))
-
 	if err != nil {
-		msg := "用户关注总数获取失败"
-		return common.UserInfoResponse{
-			StatusCode: 1,
-			StatusMsg:  &msg,
-			User:       common.User{},
-		}, err
+		return common.User{}, err
 	}
+
 	//查询用户的粉丝总数
 	followerCount, err := redis.GetFollowerCount(string(int64(userId)))
 	if err != nil {
-		msg := "用户粉丝总数获取失败"
-		return common.UserInfoResponse{
-			StatusCode: 1,
-			StatusMsg:  &msg,
-			User:       common.User{},
-		}, err
+		return common.User{}, err
 	}
+
 	//客户端查询用户是否关注
 	isFollow, err := redis.IsFollow(string(int64(userId)), string(int64(userId)))
 	if err != nil {
-		msg := "用户粉丝总数获取失败"
-		return common.UserInfoResponse{
-			StatusCode: 1,
-			StatusMsg:  &msg,
-			User:       common.User{},
-		}, err
+		return common.User{}, err
 	}
 
 	//组装用户的信息
@@ -131,19 +134,6 @@ func UserInfoService(request *common.UserInfoRequese, userId uint) (common.UserI
 		FollowerCount: followerCount,
 		IsFollow:      isFollow,
 	}
+	return author, nil
 
-	//返回用户的信息
-	msg := "查询成功"
-	return common.UserInfoResponse{
-		StatusCode: 0,
-		StatusMsg:  &msg,
-		User:       author,
-	}, nil
 }
-// encryptPassword 密码加密
-func encryptPassword(oPassword string) string {
-	h := md5.New()
-	h.Write([]byte(secret))
-	return hex.EncodeToString(h.Sum([]byte(oPassword)))
-}
-

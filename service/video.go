@@ -5,6 +5,7 @@ import (
 	"dousheng-backend/dao/mysql"
 	"dousheng-backend/dao/redis"
 	"dousheng-backend/model"
+	"dousheng-backend/util"
 	"fmt"
 	"strconv"
 	"time"
@@ -12,8 +13,8 @@ import (
 
 type VideoFeedListInfo struct {
 	*common.Response
-	NextTime  int64        `json:"next_time"`
-	VideoList []*VideoInfo `json:"video_list"`
+	NextTime  int64           `json:"next_time"`
+	VideoList []*common.Video `json:"video_list"`
 }
 
 func NewVideoFeedListInfo() *VideoFeedListInfo {
@@ -41,7 +42,10 @@ func (v *VideoFeedListInfo) FeedList(request *common.FeedRequest) (*VideoFeedLis
 		v.NextTime = videos[len(videos)-1].UpdatedAt.Unix()
 	}
 	// 根据视频信息查询到用户信息，并将用户信息封装到videoInfo中
-	videoInfos, err := GetUsersByVideoIds(videos)
+	userId, _ := util.TokenVerify(request.Token)
+
+	videoInfos, err := GetUsersByVideoIds(videos, userId)
+
 	if err != nil {
 		v.Response = &common.Response{
 			StatusCode: common.ERROR,
@@ -58,22 +62,23 @@ func (v *VideoFeedListInfo) FeedList(request *common.FeedRequest) (*VideoFeedLis
 
 }
 
-func GetUsersByVideoIds(videos []*model.Video) ([]*VideoInfo, error) {
+func GetUsersByVideoIds(videos []*model.Video, userId uint) ([]*common.Video, error) {
 	uids := make([]uint, len(videos))
 	for _, video := range videos {
 		uid := video.Uid
 		uids = append(uids, uid)
 	}
 
-	// mysql批量查询用户
-	userMap, err := mysql.MQueryUserById(uids)
-	if err != nil {
-		return nil, err
-	}
-	videoInfos := make([]*VideoInfo, 0)
+	videoInfos := make([]*common.Video, 0)
 
 	for _, video := range videos {
-		user := userMap[video.Uid]
+
+		//查询用户基本信息
+		author, err := GetUserBaseInfo(video.Uid)
+		if err != nil {
+			return nil, err
+		}
+		//查询视频的基本信息
 		vid := strconv.Itoa(int(video.ID))
 		num, err := redis.GetVideoFavoriteNum(vid)
 		if err != nil {
@@ -85,17 +90,17 @@ func GetUsersByVideoIds(videos []*model.Video) ([]*VideoInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-		IsFavorite, _ := redis.IsFavorite(string(user.ID), string(vid))
+		IsFavorite, _ := redis.IsFavorite(string(userId), string(vid))
 
-		videoInfos = append(videoInfos, &VideoInfo{
-			ID:            video.ID,
-			PlayUrl:       video.PlayUrl,
-			CoverUrl:      video.CoverUrl,
+		videoInfos = append(videoInfos, &common.Video{
+			ID:            int64(video.ID),
+			PlayURL:       video.PlayUrl,
+			CoverURL:      video.CoverUrl,
 			FavoriteCount: num,
-			CommentCount:  commentNum, // TODO 查询评论数量
+			CommentCount:  commentNum,
 			IsFavorite:    IsFavorite,
 			Title:         video.Title,
-			User:          user,
+			Author:        author,
 		})
 	}
 	return videoInfos, nil

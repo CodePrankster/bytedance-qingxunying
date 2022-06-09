@@ -27,7 +27,9 @@ func RelationAvtion(c *gin.Context) {
 		return
 	}
 	request.UserId = uid.(uint)
-	code, err := service.RelationAction(request)
+	userId, _ := c.Get("userId")
+
+	code, err := service.RelationAction(request, userId.(uint))
 	if err != nil {
 		common.Error(c, code)
 		return
@@ -45,7 +47,7 @@ func FollowList(c *gin.Context) {
 		fmt.Println("参数解析失败")
 		return
 	}
-	err, res := service.NewUserListInfo().FollowList(request)
+	err, res := service.FollowList(request)
 	if err != nil {
 		c.JSON(http.StatusOK, res)
 		return
@@ -64,7 +66,7 @@ func FollowerList(c *gin.Context) {
 		fmt.Println("参数解析失败")
 		return
 	}
-	err, res := service.NewUserListInfo().FollowerList(request)
+	err, res := service.FollowerList(request)
 	if err != nil {
 		c.JSON(http.StatusOK, res)
 		return

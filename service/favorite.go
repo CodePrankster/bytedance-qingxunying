@@ -4,24 +4,12 @@ import (
 	"dousheng-backend/common"
 	"dousheng-backend/dao/mysql"
 	"dousheng-backend/dao/redis"
-	"dousheng-backend/model"
 	"strconv"
 )
 
 type VideoListInfo struct {
 	*common.Response
-	VideoList []*VideoInfo `json:"video_list"`
-}
-
-type VideoInfo struct {
-	ID            uint        `json:"id"`
-	User          *model.User `json:"author"`                             // 用户id
-	PlayUrl       string      `json:"play_url" json:"play_url,omitempty"` // 视频播放地址
-	CoverUrl      string      `json:"cover_url,omitempty"`                // 视频封面地址
-	Title         string      `json:"title,omitempty"`                    // 视频标题
-	FavoriteCount int64       `json:"favorite_count,omitempty"`           // 视频的点赞总数
-	CommentCount  int64       `json:"comment_count,omitempty"`            // 视频的评论总数
-	IsFavorite    bool        `json:"is_favorite,omitempty"`              // true-已点赞，false-未点赞
+	VideoList []*common.Video `json:"video_list"`
 }
 
 func NewVideoListInfo() *VideoListInfo {
@@ -65,35 +53,34 @@ func (f *VideoListInfo) FavoriteList(request *common.FavoriteListRequest) (error
 		uids = append(uids, uid)
 	}
 
-	// mysql批量查询用户
-	userMap, err := mysql.MQueryUserById(uids)
-	if err != nil {
-		f.Response = &common.Response{
-			StatusCode: common.ERROR,
-			StatusMsg:  common.GetMsg(common.ERROR),
-		}
-		return err, nil
-	}
+	videoInfos := make([]*common.Video, 0)
 
-	videoInfos := make([]*VideoInfo, 0)
 	for _, video := range videoList {
-		user := userMap[video.Uid]
+		//查询用户基本信息
+		author, err := GetUserBaseInfo(video.Uid)
+
+		if err != nil {
+			if err != nil {
+				return err, nil
+			}
+		}
 		vid := strconv.Itoa(int(video.ID))
 		num, err := redis.GetVideoFavoriteNum(vid)
 		if err != nil {
 			return err, nil
 		}
-		IsFavorite, _ := redis.IsFavorite(string(user.ID), string(vid))
+		IsFavorite, _ := redis.IsFavorite(string(request.UserId), string(vid))
 		commentNum, err := mysql.GetVideoCommentNum(int64(video.ID))
-		videoInfos = append(videoInfos, &VideoInfo{
-			ID:            video.ID,
-			PlayUrl:       video.PlayUrl,
-			CoverUrl:      video.CoverUrl,
+
+		videoInfos = append(videoInfos, &common.Video{
+			ID:            int64(video.ID),
+			PlayURL:       video.PlayUrl,
+			CoverURL:      video.CoverUrl,
 			FavoriteCount: num,
 			CommentCount:  commentNum,
 			IsFavorite:    IsFavorite,
 			Title:         video.Title,
-			User:          user,
+			Author:        author,
 		})
 	}
 	f.VideoList = videoInfos

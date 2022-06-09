@@ -40,7 +40,7 @@ func InitRouter() *gin.Engine {
 	v1Comment := v1.Group("/comment")
 	{
 		v1Comment.POST("/action/", middleware.Authentication, controller.CommentAction)
-		v1Comment.GET("/list", controller.CommentList)
+		v1Comment.GET("/list/", controller.CommentList)
 	}
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

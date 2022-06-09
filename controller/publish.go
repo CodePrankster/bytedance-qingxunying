@@ -24,7 +24,6 @@ func PublishAction(c *gin.Context) {
 func PublishList(c *gin.Context) {
 	// 参数解析
 	userId, _ := c.Get("userId")
-	fmt.Println(userId.(uint))
 	response, err := service.PublishList(userId.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response)

@@ -26,55 +26,16 @@ func PublishList(userId uint) (common.PublicListResponse, error) {
 	//通过传来的user_id查询作者和作者的视频
 	//1 查询用户的信息
 	//查询用户的名称
-	userName, err := mysql.SelectUserName(int64(userId))
+	author, err := GetUserBaseInfo(userId)
 	if err != nil {
 		return common.PublicListResponse{
 			StatusCode: 1,
-			StatusMsg:  "用户名称获取失败",
+			StatusMsg:  err.Error(),
 			VideoList:  nil,
 		}, err
-	}
-
-	//查询用户的关注总数
-	followCount, err := redis.GetFollowCount(string(userId))
-
-	if err != nil {
-		return common.PublicListResponse{
-			StatusCode: 1,
-			StatusMsg:  "用户关注总数获取失败",
-			VideoList:  nil,
-		}, err
-	}
-	//查询用户的粉丝总数
-	followerCount, err := redis.GetFollowerCount(string(userId))
-	if err != nil {
-		return common.PublicListResponse{
-			StatusCode: 1,
-			StatusMsg:  "用户粉丝总数获取失败",
-			VideoList:  nil,
-		}, err
-	}
-	//客户端查询用户是否关注
-	isFollow, err := redis.IsFollow(string(userId), string(userId))
-	if err != nil {
-		return common.PublicListResponse{
-			StatusCode: 1,
-			StatusMsg:  "查询用户是否关注操作失败",
-			VideoList:  nil,
-		}, err
-	}
-
-	//组装用户的信息
-	author := common.User{
-		ID:            int64(userId),
-		Name:          userName,
-		FollowCount:   followCount,
-		FollowerCount: followerCount,
-		IsFollow:      isFollow,
 	}
 
 	//2 查询视频的相关信息
-
 	//查询视频的基础信息
 	videoBaseList, err := mysql.SelectVideoListByUserId(int64(userId))
 	if err != nil {
@@ -85,7 +46,6 @@ func PublishList(userId uint) (common.PublicListResponse, error) {
 		}, err
 	}
 	//判断用户是否有视频
-
 	if len(videoBaseList) == 0 {
 		return common.PublicListResponse{
 			StatusCode: 0,
@@ -127,10 +87,10 @@ func PublishList(userId uint) (common.PublicListResponse, error) {
 	videos := make([]common.Video, len(videoBaseList))
 
 	for i := 0; i < len(videos); i++ {
-		videos[i].Id = int64(videoBaseList[i].ID)
+		videos[i].ID = int64(videoBaseList[i].ID)
 		videos[i].Author = author
-		videos[i].PlayUrl = videoBaseList[i].PlayUrl
-		videos[i].CoverUrl = videoBaseList[i].CoverUrl
+		videos[i].PlayURL = videoBaseList[i].PlayUrl
+		videos[i].CoverURL = videoBaseList[i].CoverUrl
 		videos[i].FavoriteCount = FavoriteCount
 		videos[i].CommentCount = CommentCount
 		videos[i].IsFavorite = IsFavorite

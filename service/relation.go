@@ -28,14 +28,15 @@ func FollowList(userId uint) (error, common.FollowListAndFollowerListResponse) {
 	// TODO 参数校验
 
 	// 拿到当前用户的所有相关用户的id
-	err, idList := redis.GetFollowList(string(userId))
+	uid := strconv.Itoa(int(userId))
+	err, idList := redis.GetFollowList(uid)
 	if err != nil {
 		return err, common.FollowListAndFollowerListResponse{}
 	}
 	userList := make([]common.User, 0)
 	for _, id := range idList {
 		toId, _ := strconv.ParseInt(id, 10, 64)
-		user, _ := GetUserBaseInfo(uint(toId), string(userId))
+		user, _ := GetUserBaseInfo(uint(toId), uid)
 		userList = append(userList, user)
 	}
 	msg := "查询成功"
@@ -49,7 +50,7 @@ func FollowList(userId uint) (error, common.FollowListAndFollowerListResponse) {
 func FollowerList(userId uint) (error, common.FollowListAndFollowerListResponse) {
 	// TODO 参数校验
 	// 拿到当前用户的所有相关用户的id
-	err, idList := redis.GetFollowerList(string(userId))
+	err, idList := redis.GetFollowerList(strconv.Itoa(int(userId)))
 	if err != nil {
 		return err, common.FollowListAndFollowerListResponse{}
 	}

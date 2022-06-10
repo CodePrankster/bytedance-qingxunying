@@ -5,6 +5,7 @@ import (
 	"dousheng-backend/dao/mysql"
 	"dousheng-backend/model"
 	"errors"
+	"strconv"
 	"time"
 )
 
@@ -42,7 +43,7 @@ func CommentList(request *common.CommentListRequest) (common.CommentListResponse
 
 	comments := make([]common.Comment, 0)
 	for _, comment := range commentList {
-		user, _ := GetUserBaseInfo(comment.Uid, string(comment.Uid))
+		user, _ := GetUserBaseInfo(comment.Uid, strconv.Itoa(int(comment.Uid)))
 		comments = append(comments, common.Comment{
 			ID:         int64(comment.ID),
 			User:       user,

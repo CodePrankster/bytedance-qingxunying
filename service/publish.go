@@ -49,11 +49,11 @@ func PublishList(userId uint) (common.PublishListAndFavoriteListResponse, error)
 
 	for _, video := range videoBaseList {
 		//查询视频的点赞总数
-		FavoriteCount, _ := redis.GetVideoFavoriteNum(string(video.ID))
+		FavoriteCount, _ := redis.GetVideoFavoriteNum(strconv.Itoa(int(video.ID)))
 		//查询视频的评论总数
 		CommentCount, _ := mysql.GetVideoCommentNum(int64(video.ID))
 		//查询视频是否点赞
-		IsFavorite, _ := redis.IsFavorite(string(userId), string(video.ID))
+		IsFavorite, _ := redis.IsFavorite(strconv.Itoa(int(userId)), strconv.Itoa(int(video.ID)))
 
 		videos = append(videos, common.Video{
 			Author:        author,

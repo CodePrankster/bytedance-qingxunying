@@ -74,7 +74,7 @@
 │   ├── OSSUtil.go
 │   └── TokenUtil.go
 └── web_app.log (生成的日志文件)
-└──main.go (主启动文件)
+└── main.go (主启动文件)
 ```
 
 ### 项目作者

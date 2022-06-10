@@ -20,7 +20,7 @@ import (
 	"time"
 )
 
-func PublishList(userId uint) (common.PublishListAndFavoriteListResponse, error) {
+func PublishList(userId, loginUserId uint) (common.PublishListAndFavoriteListResponse, error) {
 	//通过传来的user_id查询作者和作者的视频
 	//1 查询用户基本信息
 	author, err := GetUserBaseInfo(userId, strconv.Itoa(int(userId)))
@@ -53,7 +53,7 @@ func PublishList(userId uint) (common.PublishListAndFavoriteListResponse, error)
 		//查询视频的评论总数
 		CommentCount, _ := mysql.GetVideoCommentNum(int64(video.ID))
 		//查询视频是否点赞
-		IsFavorite, _ := redis.IsFavorite(strconv.Itoa(int(userId)), strconv.Itoa(int(video.ID)))
+		IsFavorite, _ := redis.IsFavorite(strconv.Itoa(int(loginUserId)), strconv.Itoa(int(video.ID)))
 
 		videos = append(videos, common.Video{
 			Author:        author,

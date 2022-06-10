@@ -3,6 +3,7 @@ package controller
 import (
 	"dousheng-backend/common"
 	"dousheng-backend/service"
+	"dousheng-backend/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -25,12 +26,25 @@ func PublishAction(c *gin.Context) {
 func PublishList(c *gin.Context) {
 	// 参数解析
 	userIdStr := c.Query("user_id")
+	token := c.Query("token")
 	userId, _ := strconv.Atoi(userIdStr)
-
-	response, err := service.PublishList(uint(userId))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response)
+	// 拿去当前登录用户的id
+	loginUserId, _ := util.TokenVerify(token)
+	if loginUserId == 0 {
+		response, err := service.PublishList(uint(userId), uint(userId))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, response)
+			return
+		}
+		c.JSON(http.StatusOK, response)
+	} else {
+		response, err := service.PublishList(uint(userId), loginUserId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, response)
+			return
+		}
+		c.JSON(http.StatusOK, response)
 	}
-	c.JSON(http.StatusOK, response)
+
 	return
 }

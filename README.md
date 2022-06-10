@@ -24,6 +24,7 @@
 - Gorm 2.x
 
 ### 文件目录
+```go
 ├── common (用于存放业务状态码以及请求参数和响应参数)
 │   ├── code.go
 │   ├── request.go
@@ -73,9 +74,10 @@
 │   ├── OSSUtil.go
 │   └── TokenUtil.go
 └── web_app.log (生成的日志文件)
-├── main.go (主启动文件)
-
+└──main.go (主启动文件)
 
 ### 项目作者
 
 ### Git分支说明
+- 主分支为完整项目
+- 其他分支分别为部分功能模块（可能存在bug）

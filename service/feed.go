@@ -80,9 +80,13 @@ func GetVideoListVideoIds(videos []*model.Video, userId uint) ([]common.Video, e
 		if err != nil {
 			return nil, err
 		}
-
-		uid := strconv.Itoa(int(userId))
-		IsFavorite, _ := redis.IsFavorite(uid, vid)
+		var IsFavorite bool
+		if userId != 0 {
+			uid := strconv.Itoa(int(userId))
+			IsFavorite, _ = redis.IsFavorite(uid, vid)
+		} else {
+			IsFavorite = false
+		}
 
 		videoInfos = append(videoInfos, common.Video{
 			ID:            int64(video.ID),

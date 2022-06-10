@@ -11,14 +11,13 @@ import (
 func FeedList(c *gin.Context) {
 	// 参数校验
 	latestTime := c.Query("latest_time")
-
 	token := c.Query("token")
 	request := &common.FeedRequest{
 		LatestTime: latestTime,
 		Token:      token,
 	}
 
-	list, _ := service.NewVideoFeedListInfo().FeedList(request)
+	list, _ := service.FeedList(request)
 
 	c.JSON(http.StatusOK, list)
 	return

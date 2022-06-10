@@ -5,20 +5,12 @@ import (
 	"dousheng-backend/dao/mysql"
 	"dousheng-backend/dao/redis"
 	"dousheng-backend/model"
+	"dousheng-backend/util"
 	"strconv"
 	"time"
 )
 
-type VideoFeedListInfo struct {
-	*common.Response
-	NextTime  int64           `json:"next_time"`
-	VideoList []*common.Video `json:"video_list"`
-}
-
-func NewVideoFeedListInfo() *VideoFeedListInfo {
-	return &VideoFeedListInfo{}
-}
-func (v *VideoFeedListInfo) FeedList(request *common.FeedRequest) (*VideoFeedListInfo, error) {
+func FeedList(request *common.FeedRequest) (common.FeedResponse, error) {
 
 	t, _ := time.Parse("2006-01-02 15:04:05", request.LatestTime)
 	if t.IsZero() || time.Now().Sub(t) < 0 {
@@ -28,40 +20,45 @@ func (v *VideoFeedListInfo) FeedList(request *common.FeedRequest) (*VideoFeedLis
 	// 根据时间查找视频
 	videos, err := mysql.GetVideoFeedListByLatestTime(t)
 	if err != nil {
-		v.Response = &common.Response{
-			StatusCode: common.ERROR,
-			StatusMsg:  common.GetMsg(common.ERROR),
-		}
-		return nil, err
+		msg := "根据时间查找视频操作失败"
+		return common.FeedResponse{
+			NextTime:   nil,
+			StatusCode: 1,
+			StatusMsg:  &msg,
+			VideoList:  nil,
+		}, err
 	}
-
+	var NextTime int64
 	if len(videos)-1 >= 0 {
-		v.NextTime = videos[len(videos)-1].UpdatedAt.Unix()
+		NextTime = videos[len(videos)-1].UpdatedAt.Unix()
 	}
 	// 根据视频信息查询到用户信息，并将用户信息封装到videoInfo中
-	//userId, _ := util.TokenVerify(request.Token)
-
-	videoInfos, err := GetVideoListVideoIds(videos)
+	userId, _ := util.TokenVerify(request.Token)
+	videoInfos, err := GetVideoListVideoIds(videos, userId)
 
 	if err != nil {
-		v.Response = &common.Response{
-			StatusCode: common.ERROR,
-			StatusMsg:  common.GetMsg(common.ERROR),
-		}
-		return nil, err
+		msg := "查找视频详细信息操作失败"
+		return common.FeedResponse{
+			NextTime:   nil,
+			StatusCode: 1,
+			StatusMsg:  &msg,
+			VideoList:  nil,
+		}, err
 	}
-	v.VideoList = videoInfos
-	v.Response = &common.Response{
-		StatusCode: common.SUCCESS,
-		StatusMsg:  common.GetMsg(common.SUCCESS),
-	}
-	return v, err
+
+	msg := "查找视频流操作成功"
+	return common.FeedResponse{
+		NextTime:   &NextTime,
+		StatusCode: 0,
+		StatusMsg:  &msg,
+		VideoList:  videoInfos,
+	}, nil
 
 }
 
-func GetVideoListVideoIds(videos []*model.Video) ([]*common.Video, error) {
+func GetVideoListVideoIds(videos []*model.Video, userId uint) ([]common.Video, error) {
 
-	videoInfos := make([]*common.Video, 0)
+	videoInfos := make([]common.Video, 0)
 
 	for _, video := range videos {
 
@@ -72,6 +69,7 @@ func GetVideoListVideoIds(videos []*model.Video) ([]*common.Video, error) {
 		}
 		//查询视频的基本信息
 		vid := strconv.Itoa(int(video.ID))
+
 		num, err := redis.GetVideoFavoriteNum(vid)
 		if err != nil {
 			return nil, err
@@ -82,10 +80,11 @@ func GetVideoListVideoIds(videos []*model.Video) ([]*common.Video, error) {
 		if err != nil {
 			return nil, err
 		}
-		uid := strconv.Itoa(int(author.ID))
+
+		uid := strconv.Itoa(int(userId))
 		IsFavorite, _ := redis.IsFavorite(uid, vid)
 
-		videoInfos = append(videoInfos, &common.Video{
+		videoInfos = append(videoInfos, common.Video{
 			ID:            int64(video.ID),
 			PlayURL:       video.PlayUrl,
 			CoverURL:      video.CoverUrl,

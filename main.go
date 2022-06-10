@@ -34,6 +34,7 @@ func main() {
 	}
 	// 路由初始化
 	r := router.InitRouter()
+	//oss的bucket初始化
 	err := util.GetBuck()
 	if err != nil {
 		fmt.Printf("bucket get failed, err:%v\n", err)

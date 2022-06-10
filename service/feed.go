@@ -5,7 +5,6 @@ import (
 	"dousheng-backend/dao/mysql"
 	"dousheng-backend/dao/redis"
 	"dousheng-backend/model"
-	"dousheng-backend/util"
 	"strconv"
 	"time"
 )
@@ -40,9 +39,9 @@ func (v *VideoFeedListInfo) FeedList(request *common.FeedRequest) (*VideoFeedLis
 		v.NextTime = videos[len(videos)-1].UpdatedAt.Unix()
 	}
 	// 根据视频信息查询到用户信息，并将用户信息封装到videoInfo中
-	userId, _ := util.TokenVerify(request.Token)
+	//userId, _ := util.TokenVerify(request.Token)
 
-	videoInfos, err := GetUsersByVideoIds(videos, userId)
+	videoInfos, err := GetVideoListVideoIds(videos)
 
 	if err != nil {
 		v.Response = &common.Response{
@@ -60,12 +59,7 @@ func (v *VideoFeedListInfo) FeedList(request *common.FeedRequest) (*VideoFeedLis
 
 }
 
-func GetUsersByVideoIds(videos []*model.Video, userId uint) ([]*common.Video, error) {
-	uids := make([]uint, len(videos))
-	for _, video := range videos {
-		uid := video.Uid
-		uids = append(uids, uid)
-	}
+func GetVideoListVideoIds(videos []*model.Video) ([]*common.Video, error) {
 
 	videoInfos := make([]*common.Video, 0)
 
@@ -88,7 +82,7 @@ func GetUsersByVideoIds(videos []*model.Video, userId uint) ([]*common.Video, er
 		if err != nil {
 			return nil, err
 		}
-		uid := strconv.Itoa(int(userId))
+		uid := strconv.Itoa(int(author.ID))
 		IsFavorite, _ := redis.IsFavorite(uid, vid)
 
 		videoInfos = append(videoInfos, &common.Video{

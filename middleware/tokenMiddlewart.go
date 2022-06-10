@@ -13,9 +13,9 @@ func Authentication(c *gin.Context) {
 
 	header := c.GetHeader("Content-Type")
 	var token string
-	if header == "" { //token通过参数传递
+	if header == "" { //表明token通过参数传递
 		token = c.Query("token")
-	} else { //token通过body传递
+	} else { //表明token通过body传递
 		token = c.PostForm("token")
 	}
 

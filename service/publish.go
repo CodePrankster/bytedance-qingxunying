@@ -20,86 +20,57 @@ import (
 	"time"
 )
 
-func PublishList(userId uint) (common.PublicListResponse, error) {
-	//经过拦截器后表明请求是合法的，可以继续执行
-
+func PublishList(userId uint) (common.PublishListAndFavoriteListResponse, error) {
 	//通过传来的user_id查询作者和作者的视频
-	//1 查询用户的信息
-	//查询用户的名称
+	//1 查询用户基本信息
 	author, err := GetUserBaseInfo(userId, strconv.Itoa(int(userId)))
 	if err != nil {
-		return common.PublicListResponse{
+		msg := "查询用户基本信息失败"
+		return common.PublishListAndFavoriteListResponse{
 			StatusCode: 1,
-			StatusMsg:  err.Error(),
+			StatusMsg:  &msg,
 			VideoList:  nil,
 		}, err
 	}
 
-	//2 查询视频的相关信息
-	//查询视频的基础信息
+	//2 查询视频的基本信息
 	videoBaseList, err := mysql.SelectVideoListByUserId(int64(userId))
 	if err != nil {
-		return common.PublicListResponse{
+		msg := "查询用户视频信息操作失败"
+		return common.PublishListAndFavoriteListResponse{
 			StatusCode: 1,
-			StatusMsg:  "查询用户视频操作失败",
+			StatusMsg:  &msg,
 			VideoList:  nil,
 		}, err
 	}
-	//判断用户是否有视频
-	if len(videoBaseList) == 0 {
-		return common.PublicListResponse{
-			StatusCode: 0,
-			StatusMsg:  "查询成功",
-			VideoList:  nil,
-		}, nil
-	}
-	VideoId := videoBaseList[0].ID
 
-	//查询视频的点赞总数
-	FavoriteCount, err := redis.GetVideoFavoriteNum(string(VideoId))
-	if err != nil {
-		return common.PublicListResponse{
-			StatusCode: 1,
-			StatusMsg:  "查询视频点赞操作失败",
-			VideoList:  nil,
-		}, err
-	}
-	//查询视频的评论总数
-	CommentCount, err := mysql.GetVideoCommentNum(int64(VideoId))
-	if err != nil {
-		return common.PublicListResponse{
-			StatusCode: 1,
-			StatusMsg:  "查询视频评论总数操作失败",
-			VideoList:  nil,
-		}, err
-	}
-	//查询视频是否点赞
-	IsFavorite, err := redis.IsFavorite(string(userId), string(VideoId))
-	if err != nil {
-		return common.PublicListResponse{
-			StatusCode: 1,
-			StatusMsg:  "查询视频是否点赞操作失败",
-			VideoList:  nil,
-		}, err
-	}
-	//3 封装数据返回
+	//3 有视频封装数据返回
+	videos := make([]common.Video, 0)
 
-	videos := make([]common.Video, len(videoBaseList))
+	for _, video := range videoBaseList {
+		//查询视频的点赞总数
+		FavoriteCount, _ := redis.GetVideoFavoriteNum(string(video.ID))
+		//查询视频的评论总数
+		CommentCount, _ := mysql.GetVideoCommentNum(int64(video.ID))
+		//查询视频是否点赞
+		IsFavorite, _ := redis.IsFavorite(string(userId), string(video.ID))
 
-	for i := 0; i < len(videos); i++ {
-		videos[i].ID = int64(videoBaseList[i].ID)
-		videos[i].Author = author
-		videos[i].PlayURL = videoBaseList[i].PlayUrl
-		videos[i].CoverURL = videoBaseList[i].CoverUrl
-		videos[i].FavoriteCount = FavoriteCount
-		videos[i].CommentCount = CommentCount
-		videos[i].IsFavorite = IsFavorite
-		videos[i].Title = videoBaseList[i].Title
+		videos = append(videos, common.Video{
+			Author:        author,
+			CommentCount:  CommentCount,
+			CoverURL:      video.CoverUrl,
+			FavoriteCount: FavoriteCount,
+			ID:            int64(video.ID),
+			IsFavorite:    IsFavorite,
+			PlayURL:       video.PlayUrl,
+			Title:         video.Title,
+		})
 	}
 
-	return common.PublicListResponse{
+	msg := "查询成功"
+	return common.PublishListAndFavoriteListResponse{
 		StatusCode: 0,
-		StatusMsg:  "查询成功",
+		StatusMsg:  &msg,
 		VideoList:  videos,
 	}, nil
 }

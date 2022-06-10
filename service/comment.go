@@ -8,21 +8,6 @@ import (
 	"time"
 )
 
-type CommentListInfo struct {
-	*common.Response
-	CommentInfos []*CommentInfo `json:"comment_list"`
-}
-type CommentInfo struct {
-	ID         uint        `json:"id"`
-	User       *model.User `json:"user"`
-	Content    string      `json:"content"`
-	CreateDate string      `json:"create_date"`
-}
-
-func NewCommentListInfo() *CommentListInfo {
-	return &CommentListInfo{}
-}
-
 func CommentAction(uid uint, request *common.CommentRequest) (int32, error) {
 	value := request.ActionType
 	if value == 1 {
@@ -43,38 +28,33 @@ func CommentAction(uid uint, request *common.CommentRequest) (int32, error) {
 	return common.ERROR, errors.New("参数传入错误")
 }
 
-func (f *CommentListInfo) CommentList(request *common.CommentListRequest) (*CommentListInfo, error) {
+func CommentList(request *common.CommentListRequest) (common.CommentListResponse, error) {
 	vid := request.VideoId
 	code, commentList, err := mysql.GetCommentListByVid(vid)
 	if err != nil {
-		f.Response = &common.Response{
-			StatusCode: code,
-			StatusMsg:  common.GetMsg(code),
-		}
-		return nil, err
+		msg := "评论列表查询失败"
+		return common.CommentListResponse{
+			StatusCode:  code,
+			StatusMsg:   &msg,
+			CommentList: nil,
+		}, err
 	}
 
-	// 根据评论集合拿到对应的uid，查询出所有的用户信息
-	uids := make([]uint, 0)
+	comments := make([]common.Comment, 0)
 	for _, comment := range commentList {
-		uids = append(uids, comment.Uid)
-	}
-	userMap, err := mysql.MQueryUserById(uids)
-	if err != nil {
-		return nil, err
-	}
-	commentInfos := make([]*CommentInfo, 0)
-	for _, comment := range commentList {
-		user := userMap[comment.Uid]
-
-		commentInfos = append(commentInfos, &CommentInfo{
-			ID:         comment.ID,
+		user, _ := GetUserBaseInfo(comment.Uid, string(comment.Uid))
+		comments = append(comments, common.Comment{
+			ID:         int64(comment.ID),
 			User:       user,
 			Content:    comment.Content,
 			CreateDate: comment.CreateDate,
 		})
 	}
-	f.CommentInfos = commentInfos
-	return f, nil
+	msg := "查询评论操作成功"
+	return common.CommentListResponse{
+		StatusCode:  0,
+		StatusMsg:   &msg,
+		CommentList: comments,
+	}, nil
 
 }

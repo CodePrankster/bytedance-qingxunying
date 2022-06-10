@@ -41,7 +41,7 @@ func CommentList(c *gin.Context) {
 		fmt.Println("参数解析失败")
 		return
 	}
-	res, err := service.NewCommentListInfo().CommentList(request)
+	res, err := service.CommentList(request)
 	if err != nil {
 		c.JSON(http.StatusOK, nil)
 		return

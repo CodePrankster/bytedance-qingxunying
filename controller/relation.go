@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 // 关注功能
@@ -39,14 +40,11 @@ func RelationAvtion(c *gin.Context) {
 
 // 关注列表查询
 func FollowList(c *gin.Context) {
-	// 参数校验
 	// 参数解析
-	request := new(common.RelationFollowListRequest)
-	if err := c.ShouldBindQuery(request); err != nil {
-		fmt.Println("参数解析失败")
-		return
-	}
-	err, res := service.FollowList(request)
+	userIdStr := c.Query("user_id")
+	userId, _ := strconv.Atoi(userIdStr)
+
+	err, res := service.FollowList(uint(userId))
 	if err != nil {
 		c.JSON(http.StatusOK, res)
 		return
@@ -58,14 +56,11 @@ func FollowList(c *gin.Context) {
 
 // 粉丝列表查询
 func FollowerList(c *gin.Context) {
-	// 参数校验
 	// 参数解析
-	request := new(common.RelationFollowerListRequest)
-	if err := c.ShouldBindQuery(request); err != nil {
-		fmt.Println("参数解析失败")
-		return
-	}
-	err, res := service.FollowerList(request)
+	userIdStr := c.Query("user_id")
+	userId, _ := strconv.Atoi(userIdStr)
+
+	err, res := service.FollowerList(uint(userId))
 	if err != nil {
 		c.JSON(http.StatusOK, res)
 		return

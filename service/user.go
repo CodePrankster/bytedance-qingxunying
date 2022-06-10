@@ -24,13 +24,13 @@ func Register(request *common.RegAndLogRequest) common.RegAndLogResponse {
 	//1 长度检验
 	if len(request.Username) > 32 || len(request.Password) > 32 {
 		msg := "用户名或密码过长"
-		return common.RegAndLogResponse{StatusCode: http.StatusBadRequest, StatusMsg: &msg, UserId: perrId, Token: nil}
+		return common.RegAndLogResponse{StatusCode: http.StatusBadRequest, StatusMsg: &msg, UserID: perrId, Token: nil}
 	}
 	//2 用户名重复性检验
 	count := mysql.CheckUserName(request.Username)
 	if count != 0 {
 		msg := "用户名重复"
-		return common.RegAndLogResponse{StatusCode: http.StatusBadRequest, StatusMsg: &msg, UserId: perrId, Token: nil}
+		return common.RegAndLogResponse{StatusCode: http.StatusBadRequest, StatusMsg: &msg, UserID: perrId, Token: nil}
 	}
 	// 密码加密
 	request.Password = encryptPassword(request.Password)
@@ -57,7 +57,7 @@ func Register(request *common.RegAndLogRequest) common.RegAndLogResponse {
 	userId64 := int64(userId)
 	puId := &userId64
 	msg := "注册成功"
-	return common.RegAndLogResponse{StatusCode: common.SUCCESS, StatusMsg: &msg, UserId: puId, Token: &token}
+	return common.RegAndLogResponse{StatusCode: common.SUCCESS, StatusMsg: &msg, UserID: puId, Token: &token}
 }
 
 func Login(request *common.RegAndLogRequest) common.RegAndLogResponse {
@@ -70,13 +70,13 @@ func Login(request *common.RegAndLogRequest) common.RegAndLogResponse {
 	//不存在
 	if userId == 0 {
 		msg := "用户不存在"
-		return common.RegAndLogResponse{StatusCode: http.StatusBadRequest, StatusMsg: &msg, UserId: uId, Token: nil}
+		return common.RegAndLogResponse{StatusCode: http.StatusBadRequest, StatusMsg: &msg, UserID: uId, Token: nil}
 	}
 	//生成token
 	token := util.GetToken(userId, request)
 	//登录
 	msg := "登录成功"
-	return common.RegAndLogResponse{StatusCode: common.SUCCESS, StatusMsg: &msg, UserId: uId, Token: &token}
+	return common.RegAndLogResponse{StatusCode: common.SUCCESS, StatusMsg: &msg, UserID: uId, Token: &token}
 
 }
 

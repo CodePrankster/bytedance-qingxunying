@@ -20,7 +20,7 @@ func DeleteComment(vid int64) (int32, error) {
 	return common.SUCCESS, nil
 }
 
-func GetCommentListByVid(vid int64) (int32, []*model.Comment, error) {
+func GetCommentListByVid(vid int64) (int64, []*model.Comment, error) {
 	var commentList []*model.Comment
 	if err := db.Where("vid = ?", vid).Find(&commentList).Error; err != nil {
 		return common.ERROR, nil, err

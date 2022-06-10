@@ -4,6 +4,7 @@ import (
 	"dousheng-backend/common"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 
 	"dousheng-backend/service"
 	"fmt"
@@ -42,12 +43,9 @@ func FavoriteAction(c *gin.Context) {
 func FavoriteList(c *gin.Context) {
 	// 参数校验
 	// 参数解析
-	request := new(common.FavoriteListRequest)
-	if err := c.ShouldBindQuery(request); err != nil {
-		fmt.Println("参数解析失败")
-		return
-	}
-	err, res := service.NewVideoListInfo().FavoriteList(request)
+	userIdStr := c.Query("user_id")
+	userId, _ := strconv.Atoi(userIdStr)
+	res, err := service.FavoriteList(uint(userId))
 	if err != nil {
 		c.JSON(http.StatusOK, res)
 		return

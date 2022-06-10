@@ -24,26 +24,18 @@ func RelationAction(request *common.RelationActionRequest, userId uint) (int32, 
 	return common.SUCCESS, nil
 }
 
-func FollowList(request *common.RelationFollowListRequest) (error, common.FollowListAndFollowerListResponse) {
-	userId := strconv.Itoa(int(request.UserId))
+func FollowList(userId uint) (error, common.FollowListAndFollowerListResponse) {
 	// TODO 参数校验
 
 	// 拿到当前用户的所有相关用户的id
-	err, idList := redis.GetFollowList(userId)
+	err, idList := redis.GetFollowList(string(userId))
 	if err != nil {
 		return err, common.FollowListAndFollowerListResponse{}
 	}
-
-	//根据idList查询出所有用户信息
-	//var userList []common.User
-	//for i := 0; i < len(idList); i++ {
-	//	uid, _ := strconv.Atoi(idList[i])
-	//	userList[i], _ = GetUserBaseInfo(uint(uid))
-	//}
 	userList := make([]common.User, 0)
 	for _, id := range idList {
 		toId, _ := strconv.ParseInt(id, 10, 64)
-		user, _ := GetUserBaseInfo(uint(toId), userId)
+		user, _ := GetUserBaseInfo(uint(toId), string(userId))
 		userList = append(userList, user)
 	}
 	msg := "查询成功"
@@ -54,11 +46,10 @@ func FollowList(request *common.RelationFollowListRequest) (error, common.Follow
 	}
 }
 
-func FollowerList(request *common.RelationFollowerListRequest) (error, common.FollowListAndFollowerListResponse) {
-	userId := strconv.Itoa(int(request.UserId))
+func FollowerList(userId uint) (error, common.FollowListAndFollowerListResponse) {
 	// TODO 参数校验
 	// 拿到当前用户的所有相关用户的id
-	err, idList := redis.GetFollowerList(userId)
+	err, idList := redis.GetFollowerList(string(userId))
 	if err != nil {
 		return err, common.FollowListAndFollowerListResponse{}
 	}

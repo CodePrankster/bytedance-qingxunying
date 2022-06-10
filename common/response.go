@@ -54,7 +54,7 @@ type RegAndLogResponse struct {
 	StatusCode int64   `json:"status_code"` // 状态码，0-成功，其他值-失败
 	StatusMsg  *string `json:"status_msg"`  // 返回状态描述
 	Token      *string `json:"token"`       // 用户鉴权token
-	UserId     *int64  `json:"user_id"`     // 用户id
+	UserID     *int64  `json:"user_id"`     // 用户id
 }
 
 type UserInfoResponse struct {
@@ -63,13 +63,26 @@ type UserInfoResponse struct {
 	User       User    `json:"user"`        // 用户信息
 }
 
-type PublicListResponse struct {
+type PublishListAndFavoriteListResponse struct {
 	StatusCode int64   `json:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  string  `json:"status_msg"`  // 返回状态描述
+	StatusMsg  *string `json:"status_msg"`  // 返回状态描述
 	VideoList  []Video `json:"video_list"`  // 用户发布的视频列表
 }
 type FollowListAndFollowerListResponse struct {
 	StatusCode string  `json:"status_code"` // 状态码，0-成功，其他值-失败
 	StatusMsg  *string `json:"status_msg"`  // 返回状态描述
 	UserList   []User  `json:"user_list"`   // 用户信息列表
+}
+type CommentListResponse struct {
+	CommentList []Comment `json:"comment_list"` // 评论列表
+	StatusCode  int64     `json:"status_code"`  // 状态码，0-成功，其他值-失败
+	StatusMsg   *string   `json:"status_msg"`   // 返回状态描述
+}
+
+// Comment
+type Comment struct {
+	Content    string `json:"content"`     // 评论内容
+	CreateDate string `json:"create_date"` // 评论发布日期，格式 mm-dd
+	ID         int64  `json:"id"`          // 评论id
+	User       User   `json:"user"`        // 评论用户信息
 }

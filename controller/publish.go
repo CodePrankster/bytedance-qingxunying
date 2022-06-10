@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func PublishAction(c *gin.Context) {
@@ -23,8 +24,10 @@ func PublishAction(c *gin.Context) {
 
 func PublishList(c *gin.Context) {
 	// 参数解析
-	userId, _ := c.Get("userId")
-	response, err := service.PublishList(userId.(uint))
+	userIdStr := c.Query("user_id")
+	userId, _ := strconv.Atoi(userIdStr)
+
+	response, err := service.PublishList(uint(userId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response)
 	}

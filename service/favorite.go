@@ -7,14 +7,6 @@ import (
 	"strconv"
 )
 
-type VideoListInfo struct {
-	*common.Response
-	VideoList []*common.Video `json:"video_list"`
-}
-
-func NewVideoListInfo() *VideoListInfo {
-	return &VideoListInfo{}
-}
 func FavoriteAction(request *common.FavoriteActionRequest) (int32, error) {
 	uid := strconv.Itoa(int(request.UserId))
 	vid := strconv.Itoa(int(request.VideoId))
@@ -24,72 +16,60 @@ func FavoriteAction(request *common.FavoriteActionRequest) (int32, error) {
 	return redis.FavoriteAction(uid, vid, actionType)
 
 }
-func (f *VideoListInfo) FavoriteList(request *common.FavoriteListRequest) (error, *VideoListInfo) {
-	uid := strconv.Itoa(int(request.UserId))
+func FavoriteList(userId uint) (common.PublishListAndFavoriteListResponse, error) {
+	uid := strconv.Itoa(int(userId))
 	// TODO 参数校验
-
-	// 拿到当前用户的所有点赞视频id
+	//1 拿到当前用户的所有点赞视频id
 	err, ids := redis.FavoriteList(uid)
 	if err != nil {
-		f.Response = &common.Response{
-			StatusCode: common.ERROR,
-			StatusMsg:  common.GetMsg(common.ERROR),
-		}
-		return err, nil
+		msg := "查询用户所点赞视频的id操作失败"
+		return common.PublishListAndFavoriteListResponse{
+			StatusCode: 1,
+			StatusMsg:  &msg,
+			VideoList:  nil,
+		}, err
 	}
+
 	// 根据ids查询出所有视频信息
-	videoList, err := mysql.MQVideoListById(ids)
+	videoBaseList, err := mysql.MQVideoListById(ids)
 	if err != nil {
-		f.Response = &common.Response{
-			StatusCode: common.ERROR,
-			StatusMsg:  common.GetMsg(common.ERROR),
-		}
-		return err, nil
+		msg := "查询用户所点赞视频的信息操作失败"
+		return common.PublishListAndFavoriteListResponse{
+			StatusCode: 1,
+			StatusMsg:  &msg,
+			VideoList:  nil,
+		}, err
 	}
 
-	uids := make([]uint, len(videoList))
-	for _, video := range videoList {
-		uid := video.Uid
-		uids = append(uids, uid)
-	}
+	//3 有视频封装数据返回
+	videos := make([]common.Video, 0)
 
-	videoInfos := make([]*common.Video, 0)
-
-	for _, video := range videoList {
+	for _, video := range videoBaseList {
 		//查询用户基本信息
-		author, err := GetUserBaseInfo(video.Uid, strconv.Itoa(int(video.Uid)))
+		author, _ := GetUserBaseInfo(video.Uid, strconv.Itoa(int(video.Uid)))
+		//查询视频的点赞总数
+		FavoriteCount, _ := redis.GetVideoFavoriteNum(string(video.ID))
+		//查询视频的评论总数
+		CommentCount, _ := mysql.GetVideoCommentNum(int64(video.ID))
+		//查询视频是否点赞
+		IsFavorite, _ := redis.IsFavorite(string(userId), string(video.ID))
 
-		if err != nil {
-			if err != nil {
-				return err, nil
-			}
-		}
-		vid := strconv.Itoa(int(video.ID))
-		num, err := redis.GetVideoFavoriteNum(vid)
-		if err != nil {
-			return err, nil
-		}
-
-		uid := strconv.Itoa(int(request.UserId))
-		IsFavorite, _ := redis.IsFavorite(uid, vid)
-		commentNum, err := mysql.GetVideoCommentNum(int64(video.ID))
-
-		videoInfos = append(videoInfos, &common.Video{
-			ID:            int64(video.ID),
-			PlayURL:       video.PlayUrl,
-			CoverURL:      video.CoverUrl,
-			FavoriteCount: num,
-			CommentCount:  commentNum,
-			IsFavorite:    IsFavorite,
-			Title:         video.Title,
+		videos = append(videos, common.Video{
 			Author:        author,
+			CommentCount:  CommentCount,
+			CoverURL:      video.CoverUrl,
+			FavoriteCount: FavoriteCount,
+			ID:            int64(video.ID),
+			IsFavorite:    IsFavorite,
+			PlayURL:       video.PlayUrl,
+			Title:         video.Title,
 		})
 	}
-	f.VideoList = videoInfos
-	f.Response = &common.Response{
-		StatusCode: common.SUCCESS,
-		StatusMsg:  common.GetMsg(common.SUCCESS),
-	}
-	return nil, f
+	msg := "查询成功"
+	return common.PublishListAndFavoriteListResponse{
+		StatusCode: 0,
+		StatusMsg:  &msg,
+		VideoList:  videos,
+	}, nil
 
 }
